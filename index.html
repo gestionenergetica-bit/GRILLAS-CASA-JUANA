@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestor Torneo de Mus</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f0e0c;--card:#1a1916;--card2:#222120;--border:#333230;
+  --gold:#c9a84c;--gold2:#e8c96a;--red:#c0392b;--green:#27ae60;
+  --text:#e8e4dc;--muted:#7a7670;--white:#f5f1e8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;}
+.header{background:var(--card);border-bottom:2px solid var(--gold);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.header-title{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);letter-spacing:3px;}
+.header-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;}
+.btn-export{background:var(--gold);color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:2px;padding:8px 18px;border:none;cursor:pointer;text-transform:uppercase;}
+.btn-export:hover{background:var(--gold2);}
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;}
+.tab{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;padding:14px 20px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;transition:all .2s;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab:hover{color:var(--text);}
+.main{padding:24px;max-width:1100px;margin:0 auto;}
+.section{display:none;}.section.active{display:block;}
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.field-group{display:flex;flex-direction:column;gap:8px;}
+.field-group label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+.field-group input,.field-group select{background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;outline:none;transition:border .2s;}
+.field-group input:focus,.field-group select:focus{border-color:var(--gold);}
+.btn-primary{background:var(--gold);color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;letter-spacing:2px;padding:12px 28px;border:none;cursor:pointer;text-transform:uppercase;}
+.btn-primary:hover{background:var(--gold2);}
+.btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;padding:8px 16px;cursor:pointer;text-transform:uppercase;}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+.horarios-box{background:var(--card2);border:1px solid var(--border);padding:16px 20px;margin-bottom:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.hora-item{display:flex;flex-direction:column;gap:4px;}
+.hora-item label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+.hora-item input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:16px;padding:4px 0;width:90px;outline:none;}
+.pairs-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+.pairs-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;}
+.pairs-table td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.pairs-table td input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;padding:4px 0;width:100%;outline:none;}
+.pairs-table td input:focus{border-bottom-color:var(--gold);}
+.group-badge{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);background:var(--card2);width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
+.grupo-card{background:var(--card);border:1px solid var(--border);}
+.grupo-header{background:var(--card2);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.grupo-letra{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--gold);}
+.grupo-info{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+.ronda-tabs{display:flex;padding:0 12px;background:var(--card2);border-bottom:1px solid var(--border);}
+.ronda-tab{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);padding:8px 12px;cursor:pointer;border-bottom:2px solid transparent;}
+.ronda-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.partida-row{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.partida-row:last-child{border-bottom:none;}
+.pareja-name{font-size:13px;flex:1;min-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.vs-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);padding:0 4px;}
+.score-input{background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:15px;width:42px;text-align:center;padding:5px;outline:none;}
+.score-input:focus{border-color:var(--gold);}
+.btn-save-result{background:var(--gold);color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:5px 10px;border:none;cursor:pointer;letter-spacing:1px;white-space:nowrap;}
+.btn-save-result:hover{background:var(--gold2);}
+.result-saved{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--green);}
+.sorteo-pareja-sel{background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 10px;outline:none;min-width:140px;}
+.sorteo-pareja-sel:focus{border-color:var(--gold);}
+.grupos-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+.clasif-table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+.clasif-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;}
+.clasif-table th:nth-child(2){text-align:left;}
+.clasif-table td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;}
+.clasif-table td:nth-child(2){text-align:left;font-family:'IBM Plex Sans',sans-serif;}
+.clasif-table tr.clasificado{background:rgba(201,168,76,0.08);}
+.pos-badge{font-family:'IBM Plex Mono',monospace;background:var(--card2);display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;font-size:11px;}
+.pos-badge.gold{background:var(--gold);color:var(--bg);font-weight:600;}
+.pos-badge.silver{background:#888;color:#000;font-weight:600;}
+.grupos-clasif{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px;}
+.bracket-section{margin-bottom:32px;}
+.bracket-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:3px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:8px;}
+.bracket-match{background:var(--card);border:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.bracket-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:60px;}
+.bracket-pareja{font-size:13px;flex:1;min-width:80px;}
+.bracket-vs{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);padding:0 6px;}
+.msg{padding:12px 16px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;}
+.msg.info{background:rgba(201,168,76,0.1);border-left:3px solid var(--gold);color:var(--gold);}
+.msg.error{background:rgba(192,57,43,0.1);border-left:3px solid var(--red);color:var(--red);}
+.msg.success{background:rgba(39,174,96,0.1);border-left:3px solid var(--green);color:var(--green);}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--gold);margin-bottom:20px;}
+.divider{border:none;border-top:1px solid var(--border);margin:24px 0;}
+.flex-gap{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.horario-strip{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+.horario-pill{background:var(--card2);border:1px solid var(--border);padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold);}
+.horario-pill span{color:var(--muted);font-size:10px;display:block;}
+.winner-box{background:var(--card2);border:2px solid var(--gold);padding:24px;text-align:center;margin-top:16px;}
+.winner-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+.winner-name{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);letter-spacing:4px;}
+.badge-tercero{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--gold);background:rgba(201,168,76,0.15);padding:2px 6px;margin-left:6px;}
+.sorteo-header{background:var(--card2);padding:12px 16px;border-bottom:1px solid var(--border);}
+.sorteo-ronda-tabs{display:flex;padding:0 12px;background:var(--card2);border-bottom:1px solid var(--border);}
+.add-partida-btn{margin:10px 16px;background:transparent;border:1px dashed var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 16px;cursor:pointer;width:calc(100% - 32px);text-align:left;}
+.add-partida-btn:hover{border-color:var(--gold);color:var(--gold);}
+/* RANKING */
+.ranking-table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+.ranking-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;}
+.ranking-table th:nth-child(2){text-align:left;}
+.ranking-table td{padding:11px 12px;border-bottom:1px solid var(--border);text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;}
+.ranking-table td:nth-child(2){text-align:left;font-family:'IBM Plex Sans',sans-serif;font-size:14px;}
+.ranking-table tr:hover td{background:rgba(201,168,76,0.04);}
+.pts-badge{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);}
+.torneo-hist{background:var(--card2);border:1px solid var(--border);padding:14px 18px;margin-bottom:10px;}
+.torneo-hist-title{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;}
+.torneo-hist-items{display:flex;gap:16px;flex-wrap:wrap;}
+.torneo-hist-item{font-size:12px;color:var(--muted);}
+.torneo-hist-item strong{color:var(--text);}
+.fusionar-box{background:var(--card2);border:1px solid var(--border);padding:20px;margin-bottom:24px;}
+.fusionar-box label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.fusionar-select{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;padding:8px 10px;outline:none;width:100%;}
+.fusionar-select:focus{border-color:var(--gold);}
+.fusionar-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+.btn-danger-soft{background:transparent;color:var(--red);border:1px solid var(--red);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;padding:8px 16px;cursor:pointer;text-transform:uppercase;}
+.btn-danger-soft:hover{background:var(--red);color:white;}
+@media(max-width:600px){.setup-grid{grid-template-columns:1fr;}.grupos-container{grid-template-columns:1fr;}.horarios-box{grid-template-columns:1fr;}.tabs{overflow-x:auto;}.fusionar-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🃏 TORNEO DE MUS</div>
+    <div class="header-sub" id="header-sub">Configuración pendiente</div>
+  </div>
+  <button class="btn-export" onclick="exportarCSV()">⬇ Exportar Excel</button>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('setup',this)">Configurar</div>
+  <div class="tab" onclick="showTab('grupos',this)">Fase Grupos</div>
+  <div class="tab" onclick="showTab('clasif',this)">Clasificación</div>
+  <div class="tab" onclick="showTab('elim',this)">Eliminatorias</div>
+  <div class="tab" onclick="showTab('ranking',this)">🏆 Ranking</div>
+</div>
+
+<div class="main">
+
+<!-- SETUP -->
+<div id="tab-setup" class="section active">
+  <div class="sec-title">Configurar Torneo</div>
+  <div class="setup-grid">
+    <div class="field-group">
+      <label>Nombre del torneo</label>
+      <input type="text" id="nombre-torneo" value="Torneo de Mus">
+    </div>
+    <div class="field-group">
+      <label>Número de parejas</label>
+      <select id="num-parejas" onchange="generarParejas()">
+        <option value="8">8 parejas</option>
+        <option value="10">10 parejas</option>
+        <option value="12">12 parejas</option>
+        <option value="14">14 parejas</option>
+        <option value="16" selected>16 parejas</option>
+        <option value="18">18 parejas</option>
+        <option value="20">20 parejas</option>
+        <option value="22">22 parejas</option>
+        <option value="24">24 parejas</option>
+      </select>
+    </div>
+  </div>
+  <div class="horarios-box">
+    <div class="hora-item"><label>Ronda 1</label><input type="time" id="hora-r1" value="18:20"></div>
+    <div class="hora-item"><label>Ronda 2</label><input type="time" id="hora-r2" value="19:10"></div>
+    <div class="hora-item"><label>Ronda 3</label><input type="time" id="hora-r3" value="20:00"></div>
+    <div class="hora-item"><label>Cuartos/4F</label><input type="time" id="hora-cuartos" value="21:00"></div>
+    <div class="hora-item"><label>Semifinales</label><input type="time" id="hora-semis" value="21:50"></div>
+    <div class="hora-item"><label>Final</label><input type="time" id="hora-final" value="22:40"></div>
+  </div>
+  <div id="parejas-container"></div>
+  <div class="flex-gap">
+    <button class="btn-primary" onclick="iniciarTorneo()">▶ Iniciar Torneo</button>
+    <button class="btn-secondary" onclick="resetTorneo()">↺ Reiniciar</button>
+  </div>
+</div>
+
+<!-- GRUPOS / SORTEO -->
+<div id="tab-grupos" class="section">
+  <div class="sec-title" id="grupos-titulo">Fase de Grupos</div>
+  <div id="horario-strip" class="horario-strip"></div>
+  <div id="grupos-container"></div>
+  <hr class="divider">
+  <div class="flex-gap">
+    <button class="btn-primary" onclick="calcularClasificacion()">📊 Calcular Clasificación</button>
+    <button class="btn-secondary" onclick="generarPDFRondas()">🖨 PDF Rondas 1-2-3</button>
+  </div>
+</div>
+
+<!-- CLASIFICACION -->
+<div id="tab-clasif" class="section">
+  <div class="sec-title">Clasificación</div>
+  <div id="clasif-grupos"></div>
+  <hr class="divider">
+  <div class="sec-title" style="font-size:18px">Clasificados para Eliminatorias</div>
+  <div id="msg-clasif"></div>
+  <table class="clasif-table">
+    <thead><tr>
+      <th>#</th><th style="text-align:left">Pareja</th><th>Grupo</th><th>PG</th><th>CH</th><th>Dif</th>
+    </tr></thead>
+    <tbody id="body-clasificados"></tbody>
+  </table>
+  <div class="flex-gap">
+    <button class="btn-primary" onclick="generarEliminatorias()">⚔ Generar Eliminatorias</button>
+  </div>
+</div>
+
+<!-- ELIMINATORIAS -->
+<div id="tab-elim" class="section">
+  <div class="sec-title">Eliminatorias</div>
+  <div class="flex-gap" style="margin-bottom:20px">
+    <button class="btn-secondary" onclick="generarPDFCuartos()">🖨 PDF Cuartos</button>
+    <button class="btn-secondary" onclick="generarPDFSemis()">🖨 PDF Semis</button>
+  </div>
+  <div id="elim-container"></div>
+</div>
+
+</div>
+
+<!-- RANKING -->
+<div id="tab-ranking" class="section">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div class="sec-title" style="margin-bottom:0">Ranking Histórico</div>
+    <span id="sync-status" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px">○ Sin sincronizar</span>
+  </div>
+
+  <div class="flex-gap">
+    <button class="btn-primary" onclick="guardarTorneoEnRanking()">💾 Guardar Torneo en Ranking</button>
+    <button class="btn-secondary" onclick="sincronizarAlAbrir()">☁ Sincronizar</button>
+    <button class="btn-danger-soft" onclick="borrarRanking()">🗑 Borrar todo el historial</button>
+  </div>
+
+  <div id="msg-ranking"></div>
+
+  <!-- FUSIONAR NOMBRES -->
+  <div class="fusionar-box">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:14px">FUSIONAR / CORREGIR NOMBRES</div>
+    <div class="fusionar-grid">
+      <div>
+        <label>Nombre a eliminar (erróneo)</label>
+        <select class="fusionar-select" id="fusionar-origen"></select>
+      </div>
+      <div>
+        <label>Fusionar con (correcto)</label>
+        <select class="fusionar-select" id="fusionar-destino"></select>
+      </div>
+    </div>
+    <button class="btn-secondary" onclick="fusionarJugadores()">Fusionar → Los puntos del erróneo pasan al correcto</button>
+  </div>
+
+  <!-- TABLA RANKING -->
+  <table class="ranking-table" id="tabla-ranking">
+    <thead><tr>
+      <th>#</th>
+      <th style="text-align:left">Jugador</th>
+      <th>Pts</th>
+      <th>🥇</th><th>🥈</th><th>🥉</th><th>4º</th>
+      <th>Torneos</th>
+    </tr></thead>
+    <tbody id="body-ranking"></tbody>
+  </table>
+
+  <hr class="divider">
+  <div class="sec-title" style="font-size:16px">Historial de Torneos</div>
+  <div id="historial-torneos"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// RANKING — localStorage
+// ══════════════════════════════════════════════
+const LS_KEY = 'mus_ranking_v1';
+const _k = ['$2a$10$iAdV','sGk3XIeehV8j','oMgpJeS0RJYDx','8DNPVaRu0kxa','OKq5KcTuppy6'];
+const JSONBIN_KEY = _k.join('');
+const JSONBIN_URL = 'https://api.jsonbin.io/v3/bins';
+let JSONBIN_BIN_ID = localStorage.getItem('mus_bin_id') || null;
+let syncStatus = 'idle'; // idle | syncing | ok | error
+
+// ── Mostrar estado de sync ─────────────────────
+function setSyncStatus(status, msg) {
+  syncStatus = status;
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const colors = {idle:'var(--muted)', syncing:'var(--gold)', ok:'var(--green)', error:'var(--red)'};
+  const icons  = {idle:'○', syncing:'↻', ok:'✓', error:'✗'};
+  el.style.color = colors[status];
+  el.textContent = icons[status] + ' ' + msg;
+}
+
+// ── Carga desde JSONBin (async) ────────────────
+async function cargarRankingRemoto() {
+  if (!JSONBIN_BIN_ID) return null;
+  try {
+    setSyncStatus('syncing','Cargando...');
+    const r = await fetch(`${JSONBIN_URL}/${JSONBIN_BIN_ID}/latest`, {
+      headers:{'X-Master-Key': JSONBIN_KEY}
+    });
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    const json = await r.json();
+    setSyncStatus('ok','Sincronizado');
+    return json.record || {jugadores:{}, torneos:[]};
+  } catch(e) {
+    setSyncStatus('error','Sin conexión — usando local');
+    return null;
+  }
+}
+
+// ── Guarda en JSONBin (async) ──────────────────
+async function guardarRankingRemoto(data) {
+  setSyncStatus('syncing','Guardando...');
+  try {
+    if (!JSONBIN_BIN_ID) {
+      // Crear bin nuevo
+      const r = await fetch(JSONBIN_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY,'X-Bin-Name':'MusRanking'},
+        body: JSON.stringify(data)
+      });
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      const json = await r.json();
+      JSONBIN_BIN_ID = json.metadata.id;
+      localStorage.setItem('mus_bin_id', JSONBIN_BIN_ID);
+    } else {
+      const r = await fetch(`${JSONBIN_URL}/${JSONBIN_BIN_ID}`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+        body: JSON.stringify(data)
+      });
+      if (!r.ok) throw new Error('HTTP '+r.status);
+    }
+    // Guardar también local como caché
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    setSyncStatus('ok','Guardado ✓');
+  } catch(e) {
+    // Fallback a localStorage
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    setSyncStatus('error','Error red — guardado solo en local');
+  }
+}
+
+// ── Funciones síncronas (caché local) ─────────
+function cargarRanking() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {jugadores:{}, torneos:[]}; }
+  catch(e) { return {jugadores:{}, torneos:[]}; }
+}
+
+function guardarRankingLS(data) {
+  guardarRankingRemoto(data); // async, no bloqueante
+}
+
+// ── Carga remota al abrir la pestaña ──────────
+async function sincronizarAlAbrir() {
+  const remoto = await cargarRankingRemoto();
+  if (remoto) {
+    localStorage.setItem(LS_KEY, JSON.stringify(remoto));
+    renderRanking();
+  }
+}
+
+function separarJugadores(nombrePareja) {
+  return nombrePareja.split('/').map(j=>j.trim()).filter(j=>j.length>0);
+}
+
+const PUNTOS = {1:10, 2:6, 3:3, 4:3};
+const MEDALLAS = {1:'🥇',2:'🥈',3:'🥉',4:'4º'};
+
+function guardarTorneoEnRanking() {
+  if (!T.elim.ganador) { 
+    document.getElementById('msg-ranking').innerHTML = '<div class="msg error">El torneo no ha terminado todavía. Necesitas registrar el resultado de la final.</div>';
+    return;
+  }
+
+  // Extraer 1º, 2º y los 2 semifinalistas (3º/4º)
+  const finalPartida = T.elim.final[0];
+  const p1final = finalPartida.p1;
+  const p2final = finalPartida.p2;
+  const campeon   = finalPartida.g1 > finalPartida.g2 ? p1final : p2final;
+  const finalista = finalPartida.g1 > finalPartida.g2 ? p2final : p1final;
+
+  // Semifinalistas eliminados = los que no ganaron en semis
+  const semisEliminados = T.elim.semis.map(s => {
+    if (!s.saved) return null;
+    return s.g1 > s.g2 ? s.p2 : s.p1;
+  }).filter(Boolean);
+
+  const posiciones = [
+    {pos:1, pareja: campeon},
+    {pos:2, pareja: finalista},
+    ...semisEliminados.map(p=>({pos:3, pareja:p}))
+  ];
+
+  // Nombre del torneo ya guardado?
+  const data = cargarRanking();
+  if (data.torneos.find(t=>t.nombre===T.nombre && t.fecha===new Date().toLocaleDateString('es-ES'))) {
+    if (!confirm(`El torneo "${T.nombre}" de hoy ya está guardado. ¿Sobreescribir?`)) return;
+    // Eliminar el anterior
+    const idx = data.torneos.findIndex(t=>t.nombre===T.nombre && t.fecha===new Date().toLocaleDateString('es-ES'));
+    const torneoAnterior = data.torneos[idx];
+    // Revertir puntos
+    torneoAnterior.resultados.forEach(r => {
+      r.jugadores.forEach(j => {
+        if (data.jugadores[j]) {
+          data.jugadores[j].puntos -= r.puntos;
+          data.jugadores[j][`pos${r.pos}`] = (data.jugadores[j][`pos${r.pos}`]||1) - 1;
+          data.jugadores[j].torneos = (data.jugadores[j].torneos||1) - 1;
+        }
+      });
+    });
+    data.torneos.splice(idx,1);
+  }
+
+  const torneoEntry = {
+    nombre: T.nombre,
+    fecha: new Date().toLocaleDateString('es-ES'),
+    numParejas: T.numParejas,
+    resultados: []
+  };
+
+  posiciones.forEach(({pos, pareja}) => {
+    if (!pareja) return;
+    const jugadores = separarJugadores(pareja.nombre);
+    const pts = PUNTOS[pos];
+    jugadores.forEach(j => {
+      if (!data.jugadores[j]) data.jugadores[j] = {puntos:0, torneos:0, pos1:0, pos2:0, pos3:0, pos4:0};
+      data.jugadores[j].puntos += pts;
+      data.jugadores[j][`pos${pos}`] = (data.jugadores[j][`pos${pos}`]||0) + 1;
+      data.jugadores[j].torneos += 1;
+    });
+    torneoEntry.resultados.push({pos, pareja:pareja.nombre, jugadores, puntos:pts});
+  });
+
+  data.torneos.push(torneoEntry);
+  guardarRankingLS(data);
+
+  document.getElementById('msg-ranking').innerHTML = '<div class="msg success">✓ Torneo guardado en el ranking.</div>';
+  renderRanking();
+}
+
+function renderRanking() {
+  const data = cargarRanking();
+  const jugadores = Object.entries(data.jugadores)
+    .map(([nombre,s])=>({nombre,...s}))
+    .sort((a,b) => {
+      if (b.puntos !== a.puntos) return b.puntos - a.puntos;
+      return b.torneos - a.torneos;
+    });
+
+  // Poblar selects de fusión
+  const opts = jugadores.map(j=>`<option value="${j.nombre}">${j.nombre}</option>`).join('');
+  document.getElementById('fusionar-origen').innerHTML = opts;
+  document.getElementById('fusionar-destino').innerHTML = opts;
+
+  // Tabla ranking
+  let html = '';
+  jugadores.forEach((j,i) => {
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    html += `<tr>
+      <td>${medal||i+1}</td>
+      <td>${j.nombre}</td>
+      <td><span class="pts-badge">${j.puntos}</span></td>
+      <td>${j.pos1||0}</td><td>${j.pos2||0}</td><td>${j.pos3||0}</td><td>${j.pos4||0}</td>
+      <td>${j.torneos||0}</td>
+    </tr>`;
+  });
+  document.getElementById('body-ranking').innerHTML = html || '<tr><td colspan="8" style="color:var(--muted);padding:20px;text-align:center">Sin datos todavía</td></tr>';
+
+  // Historial torneos
+  let hist = '';
+  [...data.torneos].reverse().forEach(t => {
+    hist += `<div class="torneo-hist">
+      <div class="torneo-hist-title">${t.nombre} · ${t.fecha} · ${t.numParejas} parejas</div>
+      <div class="torneo-hist-items">`;
+    t.resultados.forEach(r => {
+      hist += `<div class="torneo-hist-item">${MEDALLAS[r.pos]||r.pos+'º'} <strong>${r.pareja}</strong> (${r.puntos}pts)</div>`;
+    });
+    hist += '</div></div>';
+  });
+  document.getElementById('historial-torneos').innerHTML = hist || '<div class="msg info">Sin torneos guardados</div>';
+}
+
+function fusionarJugadores() {
+  const origen = document.getElementById('fusionar-origen').value;
+  const destino = document.getElementById('fusionar-destino').value;
+  if (!origen || !destino || origen === destino) {
+    alert('Selecciona dos jugadores distintos.'); return;
+  }
+  if (!confirm(`¿Fusionar "${origen}" → "${destino}"?
+Todos los puntos de "${origen}" pasarán a "${destino}" y se borrará "${origen}".`)) return;
+
+  const data = cargarRanking();
+  if (!data.jugadores[origen]) { alert('Jugador origen no encontrado.'); return; }
+  if (!data.jugadores[destino]) data.jugadores[destino] = {puntos:0,torneos:0,pos1:0,pos2:0,pos3:0,pos4:0};
+
+  const o = data.jugadores[origen];
+  const d = data.jugadores[destino];
+  d.puntos  += o.puntos;
+  d.torneos += o.torneos;
+  d.pos1 = (d.pos1||0) + (o.pos1||0);
+  d.pos2 = (d.pos2||0) + (o.pos2||0);
+  d.pos3 = (d.pos3||0) + (o.pos3||0);
+  d.pos4 = (d.pos4||0) + (o.pos4||0);
+
+  // Actualizar historial de torneos
+  data.torneos.forEach(t => t.resultados.forEach(r => {
+    r.jugadores = r.jugadores.map(j => j === origen ? destino : j);
+    if (r.pareja === origen) r.pareja = destino;
+  }));
+
+  delete data.jugadores[origen];
+  guardarRankingLS(data);
+  document.getElementById('msg-ranking').innerHTML = `<div class="msg success">✓ "${origen}" fusionado con "${destino}".</div>`;
+  renderRanking();
+}
+
+function borrarRanking() {
+  if (!confirm('¿Borrar TODO el historial de ranking? Esta acción no se puede deshacer.')) return;
+  localStorage.removeItem(LS_KEY);
+  document.getElementById('msg-ranking').innerHTML = '<div class="msg info">Historial borrado.</div>';
+  renderRanking();
+}
+
+// Sincronizar ranking al abrir la pestaña
+document.querySelectorAll('.tab').forEach(t => {
+  if (t.textContent.includes('Ranking')) {
+    t.addEventListener('click', sincronizarAlAbrir);
+  }
+});
+
+// ══════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════
+let T = {
+  nombre:'', numParejas:16, parejas:[], grupos:[], esSorteo:false,
+  sorteoRondas:[[],[],[]], // Para modo sorteo: array de partidas por ronda
+  clasif:[], clasificados:[],
+  elim:{ cuartos:[], semis:[], final:[], ganador:null },
+  horas:{}
+};
+const LETRAS = ['A','B','C','D','E','F'];
+
+// ══════════════════════════════════════════════
+// CONFIGURACIÓN POR NÚMERO DE PAREJAS
+// ══════════════════════════════════════════════
+function getConfig(n) {
+  // esSorteo: sin grupos, clasifican 8 mejores
+  // grupos: array de tamaños
+  // nClasif: total clasificados
+  // reglaClas: descripción
+  const cfg = {
+    8:  { esSorteo:false, grupos:[4,4],       nClasif:4,  reglaClas:'2 primeros de cada grupo' },
+    10: { esSorteo:true,  grupos:null,         nClasif:8,  reglaClas:'8 mejores (sorteo manual)' },
+    12: { esSorteo:false, grupos:[4,4,4],     nClasif:8,  reglaClas:'2 primeros de cada grupo + 2 mejores 3ºs' },
+    14: { esSorteo:true,  grupos:null,         nClasif:8,  reglaClas:'8 mejores (sorteo manual)' },
+    16: { esSorteo:false, grupos:[4,4,4,4],   nClasif:8,  reglaClas:'2 primeros de cada grupo' },
+    18: { esSorteo:true,  grupos:null,         nClasif:8,  reglaClas:'8 mejores (sorteo manual)' },
+    20: { esSorteo:false, grupos:[4,4,4,4,4], nClasif:8,  reglaClas:'1º de cada grupo + 3 mejores 2ºs' },
+    22: { esSorteo:true,  grupos:null,         nClasif:8,  reglaClas:'8 mejores (sorteo manual)' },
+    24: { esSorteo:false, grupos:[4,4,4,4,4,4], nClasif:8, reglaClas:'1º de cada grupo + 2 mejores 2ºs' },
+  };
+  return cfg[n] || cfg[16];
+}
+
+// ══════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════
+function showTab(id, el) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+// GENERAR INPUTS PAREJAS
+// ══════════════════════════════════════════════
+function generarParejas() {
+  const n = parseInt(document.getElementById('num-parejas').value);
+  const cfg = getConfig(n);
+  let html = '';
+  if (cfg.esSorteo) {
+    html = `<div class="msg info">Formato sorteo manual — ${cfg.reglaClas}</div>
+    <table class="pairs-table">
+      <thead><tr><th>#</th><th>Nombre de la Pareja</th></tr></thead><tbody>`;
+    for (let i=1;i<=n;i++) {
+      html += `<tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--muted);width:40px">${i}</td>
+        <td><input type="text" id="pareja-${i}" placeholder="Pareja ${i}"></td></tr>`;
+    }
+    html += '</tbody></table>';
+  } else {
+    cfg.grupos.forEach((tam, gi) => {
+      const start = cfg.grupos.slice(0,gi).reduce((a,b)=>a+b,0)+1;
+      html += `<div style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div class="group-badge">${LETRAS[gi]}</div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">GRUPO ${LETRAS[gi]} · ${tam} PAREJAS</span>
+        </div>
+        <table class="pairs-table"><thead><tr><th>#</th><th>Nombre de la Pareja</th></tr></thead><tbody>`;
+      for (let i=0;i<tam;i++) {
+        const idx = start+i;
+        html += `<tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--muted);width:40px">${idx}</td>
+          <td><input type="text" id="pareja-${idx}" placeholder="Pareja ${idx}"></td></tr>`;
+      }
+      html += '</tbody></table></div>';
+    });
+  }
+  document.getElementById('parejas-container').innerHTML = html;
+}
+window.onload = ()=>generarParejas();
+
+// ══════════════════════════════════════════════
+// INICIAR TORNEO
+// ══════════════════════════════════════════════
+function iniciarTorneo() {
+  const n = parseInt(document.getElementById('num-parejas').value);
+  const cfg = getConfig(n);
+  T.nombre = document.getElementById('nombre-torneo').value || 'Torneo de Mus';
+  T.numParejas = n;
+  T.esSorteo = cfg.esSorteo;
+  T.horas = {
+    r1:document.getElementById('hora-r1').value,
+    r2:document.getElementById('hora-r2').value,
+    r3:document.getElementById('hora-r3').value,
+    cuartos:document.getElementById('hora-cuartos').value,
+    semis:document.getElementById('hora-semis').value,
+    final:document.getElementById('hora-final').value
+  };
+  T.parejas = [];
+  T.grupos = [];
+  T.sorteoRondas = [[],[],[]];
+  T.clasif = [];
+  T.clasificados = [];
+  T.elim = {cuartos:[],semis:[],final:[],ganador:null};
+
+  for (let i=1;i<=n;i++) {
+    const nombre = document.getElementById('pareja-'+i)?.value || 'Pareja '+i;
+    T.parejas.push({id:i, nombre, grupo: cfg.esSorteo ? null : null});
+  }
+
+  if (!cfg.esSorteo) {
+    let pIdx = 0;
+    cfg.grupos.forEach((tam, gi) => {
+      const letra = LETRAS[gi];
+      const ids = [];
+      for (let i=0;i<tam;i++) {
+        T.parejas[pIdx].grupo = letra;
+        ids.push(T.parejas[pIdx].id);
+        pIdx++;
+      }
+      const rondas = generarRondasGrupo(ids, tam);
+      T.grupos.push({letra, parejas:ids, rondas});
+    });
+  }
+
+  document.getElementById('header-sub').textContent = `${T.nombre} · ${n} Parejas · ${cfg.esSorteo?'Sorteo':cfg.grupos.length+' Grupos'}`;
+  document.getElementById('grupos-titulo').textContent = cfg.esSorteo ? 'Fase de Sorteo Manual' : 'Fase de Grupos';
+
+  renderFaseGrupos();
+  showTab('grupos', document.querySelectorAll('.tab')[1]);
+}
+
+// ══════════════════════════════════════════════
+// ENFRENTAMIENTOS POR GRUPO
+// ══════════════════════════════════════════════
+function generarRondasGrupo(ids, tam) {
+  if (tam===4) return [
+    [{p1:ids[0],p2:ids[2]},{p1:ids[1],p2:ids[3]}],
+    [{p1:ids[0],p2:ids[3]},{p1:ids[1],p2:ids[2]}],
+    [{p1:ids[0],p2:ids[1]},{p1:ids[2],p2:ids[3]}]
+  ];
+  if (tam===3) return [
+    [{p1:ids[0],p2:ids[2]}],
+    [{p1:ids[0],p2:ids[1]}],
+    [{p1:ids[1],p2:ids[2]}]
+  ];
+  return [[],[],[]];
+}
+
+// ══════════════════════════════════════════════
+// RENDER FASE GRUPOS
+// ══════════════════════════════════════════════
+function renderFaseGrupos() {
+  let strip = ['r1','r2','r3'].map((r,i)=>
+    `<div class="horario-pill"><span>Ronda ${i+1}</span>${T.horas[r]}</div>`).join('');
+  document.getElementById('horario-strip').innerHTML = strip;
+
+  if (T.esSorteo) renderSorteo();
+  else renderGrupos();
+}
+
+// ══════════════════════════════════════════════
+// MODO GRUPOS
+// ══════════════════════════════════════════════
+function renderGrupos() {
+  let html = '<div class="grupos-container">';
+  T.grupos.forEach((grupo, gi) => {
+    html += `<div class="grupo-card">
+      <div class="grupo-header"><div class="grupo-letra">${grupo.letra}</div>
+      <div class="grupo-info">${grupo.parejas.length} PAREJAS</div></div>
+      <div class="ronda-tabs" id="rtabs-${gi}">
+        ${[0,1,2].map(ri=>`<div class="ronda-tab ${ri===0?'active':''}" onclick="showRondaGrupo(${gi},${ri},this)">R${ri+1} · ${T.horas['r'+(ri+1)]}</div>`).join('')}
+      </div>
+      ${[0,1,2].map(ri=>renderRondaGrupoHTML(gi,ri)).join('')}
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('grupos-container').innerHTML = html;
+  T.grupos.forEach((_,gi)=>[0,1,2].forEach(ri=>{
+    const el=document.getElementById(`ronda-${gi}-${ri}`);
+    if(el) el.style.display=ri===0?'block':'none';
+  }));
+}
+
+function showRondaGrupo(gi, ri, el) {
+  document.querySelectorAll(`#rtabs-${gi} .ronda-tab`).forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  [0,1,2].forEach(r=>{
+    const d=document.getElementById(`ronda-${gi}-${r}`);
+    if(d) d.style.display=r===ri?'block':'none';
+  });
+}
+
+function renderRondaGrupoHTML(gi, ri) {
+  const partidas = T.grupos[gi].rondas[ri];
+  let html = `<div id="ronda-${gi}-${ri}">`;
+  partidas.forEach((p,pi)=>{
+    const n1=getNombre(p.p1), n2=getNombre(p.p2);
+    const v1=p.saved?p.g1:'', v2=p.saved?p.g2:'';
+    const saved=p.saved?`<span class="result-saved">✓ ${p.g1}–${p.g2}</span>`:'';
+    html+=`<div class="partida-row">
+      <span class="pareja-name" title="${n1}">${n1}</span>
+      <span class="vs-label">VS</span>
+      <input class="score-input" type="number" min="0" max="5" id="g-${gi}-${ri}-${pi}-1" value="${v1}" placeholder="0">
+      <span style="color:var(--muted)">—</span>
+      <input class="score-input" type="number" min="0" max="5" id="g-${gi}-${ri}-${pi}-2" value="${v2}" placeholder="0">
+      <span class="vs-label">VS</span>
+      <span class="pareja-name" title="${n2}" style="text-align:right">${n2}</span>
+      <button class="btn-save-result" onclick="guardarGrupo(${gi},${ri},${pi})">OK</button>
+      ${saved}
+    </div>`;
+  });
+  html+='</div>';
+  return html;
+}
+
+function guardarGrupo(gi, ri, pi) {
+  const g1=parseInt(document.getElementById(`g-${gi}-${ri}-${pi}-1`).value);
+  const g2=parseInt(document.getElementById(`g-${gi}-${ri}-${pi}-2`).value);
+  if(isNaN(g1)||isNaN(g2)) return;
+  T.grupos[gi].rondas[ri][pi] = {...T.grupos[gi].rondas[ri][pi], g1, g2, saved:true};
+  renderGrupos();
+  // Restaurar ronda activa
+  const tabs=document.querySelectorAll(`#rtabs-${gi} .ronda-tab`);
+  if(tabs[ri]) tabs[ri].classList.add('active');
+  [0,1,2].forEach(r=>{
+    const d=document.getElementById(`ronda-${gi}-${r}`);
+    if(d) d.style.display=r===ri?'block':'none';
+  });
+}
+
+// ══════════════════════════════════════════════
+// MODO SORTEO MANUAL
+// ══════════════════════════════════════════════
+function renderSorteo() {
+  let html = '<div class="grupo-card" style="max-width:700px">';
+  html += `<div class="grupo-header"><div class="grupo-letra">S</div>
+    <div class="grupo-info">SORTEO MANUAL · 3 RONDAS</div></div>`;
+  html += `<div class="ronda-tabs" id="sorteo-rtabs">
+    ${[0,1,2].map(ri=>`<div class="ronda-tab ${ri===0?'active':''}" onclick="showRondaSorteo(${ri},this)">R${ri+1} · ${T.horas['r'+(ri+1)]}</div>`).join('')}
+  </div>`;
+  [0,1,2].forEach(ri=>{
+    html+=`<div id="sorteo-ronda-${ri}" style="display:${ri===0?'block':'none'}">`;
+    T.sorteoRondas[ri].forEach((p,pi)=>{
+      html+=renderSorteoPartida(ri,pi,p);
+    });
+    html+=`<button class="add-partida-btn" onclick="addSorteoPartida(${ri})">+ Añadir partida en Ronda ${ri+1}</button>`;
+    html+='</div>';
+  });
+  html+='</div>';
+  document.getElementById('grupos-container').innerHTML = html;
+}
+
+function renderSorteoPartida(ri, pi, p) {
+  const opts = T.parejas.map(x=>`<option value="${x.id}" ${p&&p.p1===x.id?'selected':''}>${x.id}. ${x.nombre}</option>`).join('');
+  const opts2 = T.parejas.map(x=>`<option value="${x.id}" ${p&&p.p2===x.id?'selected':''}>${x.id}. ${x.nombre}</option>`).join('');
+  const v1=p&&p.saved?p.g1:'', v2=p&&p.saved?p.g2:'';
+  const saved=p&&p.saved?`<span class="result-saved">✓ ${p.g1}–${p.g2}</span>`:'';
+  return `<div class="partida-row">
+    <select class="sorteo-pareja-sel" id="sp-${ri}-${pi}-1" onchange="asignarSorteoPareja(${ri},${pi})">
+      <option value="">— Pareja 1 —</option>${opts}
+    </select>
+    <span class="vs-label">VS</span>
+    <select class="sorteo-pareja-sel" id="sp-${ri}-${pi}-2" onchange="asignarSorteoPareja(${ri},${pi})">
+      <option value="">— Pareja 2 —</option>${opts2}
+    </select>
+    <input class="score-input" type="number" min="0" max="5" id="ss-${ri}-${pi}-1" value="${v1}" placeholder="0">
+    <span style="color:var(--muted)">—</span>
+    <input class="score-input" type="number" min="0" max="5" id="ss-${ri}-${pi}-2" value="${v2}" placeholder="0">
+    <button class="btn-save-result" onclick="guardarSorteo(${ri},${pi})">OK</button>
+    ${saved}
+  </div>`;
+}
+
+function addSorteoPartida(ri) {
+  T.sorteoRondas[ri].push({p1:null,p2:null,g1:null,g2:null,saved:false});
+  renderSorteo();
+  showRondaSorteoById(ri);
+}
+
+function asignarSorteoPareja(ri, pi) {
+  const v1=parseInt(document.getElementById(`sp-${ri}-${pi}-1`).value)||null;
+  const v2=parseInt(document.getElementById(`sp-${ri}-${pi}-2`).value)||null;
+  if(!T.sorteoRondas[ri][pi]) T.sorteoRondas[ri][pi]={p1:null,p2:null,g1:null,g2:null,saved:false};
+  T.sorteoRondas[ri][pi].p1=v1;
+  T.sorteoRondas[ri][pi].p2=v2;
+}
+
+function guardarSorteo(ri, pi) {
+  const g1=parseInt(document.getElementById(`ss-${ri}-${pi}-1`).value);
+  const g2=parseInt(document.getElementById(`ss-${ri}-${pi}-2`).value);
+  const v1=parseInt(document.getElementById(`sp-${ri}-${pi}-1`).value)||null;
+  const v2=parseInt(document.getElementById(`sp-${ri}-${pi}-2`).value)||null;
+  if(isNaN(g1)||isNaN(g2)||!v1||!v2){alert('Selecciona las parejas y el resultado.');return;}
+  T.sorteoRondas[ri][pi]={p1:v1,p2:v2,g1,g2,saved:true};
+  renderSorteo();
+  showRondaSorteoById(ri);
+}
+
+function showRondaSorteo(ri, el) {
+  document.querySelectorAll('#sorteo-rtabs .ronda-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  [0,1,2].forEach(r=>{
+    const d=document.getElementById(`sorteo-ronda-${r}`);
+    if(d) d.style.display=r===ri?'block':'none';
+  });
+}
+
+function showRondaSorteoById(ri) {
+  [0,1,2].forEach(r=>{
+    const d=document.getElementById(`sorteo-ronda-${r}`);
+    if(d) d.style.display=r===ri?'block':'none';
+  });
+  const tabs=document.querySelectorAll('#sorteo-rtabs .ronda-tab');
+  tabs.forEach((t,i)=>t.classList.toggle('active',i===ri));
+}
+
+// ══════════════════════════════════════════════
+// CALCULAR CLASIFICACIÓN
+// ══════════════════════════════════════════════
+function calcularClasificacion() {
+  const stats = {};
+  T.parejas.forEach(p=>{
+    stats[p.id]={id:p.id,nombre:p.nombre,grupo:p.grupo||'—',PG:0,CH:0,CP:0,DIF:0,posGrupo:0,clasif:false};
+  });
+
+  const procesarPartida = (p1id, p2id, g1, g2) => {
+    const s1=stats[p1id], s2=stats[p2id];
+    if(!s1||!s2) return;
+    if(g1>g2) s1.PG++; else if(g2>g1) s2.PG++;
+    s1.CH+=g1; s2.CH+=g2;
+    s1.CP+=g2; s2.CP+=g1;
+  };
+
+  if (T.esSorteo) {
+    T.sorteoRondas.forEach(ronda=>ronda.forEach(p=>{
+      if(p.saved) procesarPartida(p.p1,p.p2,p.g1,p.g2);
+    }));
+  } else {
+    T.grupos.forEach(grupo=>grupo.rondas.forEach(ronda=>ronda.forEach(p=>{
+      if(p.saved) procesarPartida(p.p1,p.p2,p.g1,p.g2);
+    })));
+  }
+
+  Object.values(stats).forEach(s=>s.DIF=s.CH-s.CP);
+
+  // Ordenar
+  const cmp = (a,b) => {
+    if(b.PG!==a.PG) return b.PG-a.PG;
+    if(b.DIF!==a.DIF) return b.DIF-a.DIF;
+    if(b.CH!==a.CH) return b.CH-a.CH;
+    return 0;
+  };
+
+  const cfg = getConfig(T.numParejas);
+  T.clasif = [];
+
+  if (T.esSorteo) {
+    const todos = Object.values(stats).sort(cmp);
+    todos.forEach((s,i)=>{s.posGrupo=i+1; s.clasif=i<cfg.nClasif;});
+    T.clasif = todos;
+  } else {
+    // Calcular posición dentro de cada grupo
+    const porGrupo = {};
+    T.grupos.forEach(g=>{
+      const miembros = g.parejas.map(id=>stats[id]).sort(cmp);
+      miembros.forEach((s,i)=>{ s.posGrupo=i+1; });
+      porGrupo[g.letra] = miembros;
+      T.clasif.push(...miembros);
+    });
+
+    // Aplicar regla de clasificación según número de parejas
+    clasificarSegunRegla(porGrupo, cfg, cmp);
+  }
+
+  T.clasificados = T.clasif.filter(s=>s.clasif).sort(cmp);
+  renderClasificacion();
+  showTab('clasif', document.querySelectorAll('.tab')[2]);
+}
+
+function clasificarSegunRegla(porGrupo, cfg, cmp) {
+  const n = T.numParejas;
+  const primeros = Object.values(porGrupo).map(g=>g[0]);
+  const segundos = Object.values(porGrupo).map(g=>g[1]).filter(Boolean);
+  const terceros = Object.values(porGrupo).map(g=>g[2]).filter(Boolean);
+
+  if (n===8) {
+    // 2 grupos: 2 primeros → 4 clasificados
+    primeros.forEach(s=>s.clasif=true);
+    segundos.forEach(s=>s.clasif=true);
+  } else if (n===12) {
+    // 3 grupos: 2x3 + 2 mejores 3ºs → 8
+    primeros.forEach(s=>s.clasif=true);
+    segundos.forEach(s=>s.clasif=true);
+    const mejores3 = terceros.sort(cmp).slice(0,2);
+    mejores3.forEach(s=>s.clasif=true);
+  } else if (n===16) {
+    // 4 grupos: 2 por grupo → 8
+    primeros.forEach(s=>s.clasif=true);
+    segundos.forEach(s=>s.clasif=true);
+  } else if (n===20) {
+    // 5 grupos: 1º de cada + 3 mejores 2ºs → 8
+    primeros.forEach(s=>s.clasif=true);
+    const mejores2 = segundos.sort(cmp).slice(0,3);
+    mejores2.forEach(s=>s.clasif=true);
+  } else if (n===24) {
+    // 6 grupos: 1º de cada + 2 mejores 2ºs → 8
+    primeros.forEach(s=>s.clasif=true);
+    const mejores2 = segundos.sort(cmp).slice(0,2);
+    mejores2.forEach(s=>s.clasif=true);
+  }
+}
+
+// ══════════════════════════════════════════════
+// RENDER CLASIFICACIÓN
+// ══════════════════════════════════════════════
+function renderClasificacion() {
+  const cfg = getConfig(T.numParejas);
+  let htmlGrupos = '';
+
+  if (T.esSorteo) {
+    htmlGrupos = '<div class="grupo-card" style="max-width:600px"><div class="grupo-header"><div class="grupo-letra">S</div><div class="grupo-info">CLASIFICACIÓN GENERAL</div></div>';
+    htmlGrupos += '<table class="clasif-table"><thead><tr><th>#</th><th style="text-align:left">Pareja</th><th>PG</th><th>CH</th><th>Dif</th></tr></thead><tbody>';
+    T.clasif.forEach((s,i)=>{
+      const cls=s.clasif?'clasificado':'';
+      const mark=s.clasif?'<span class="badge-tercero">CLASIF</span>':'';
+      htmlGrupos+=`<tr class="${cls}"><td><span class="pos-badge ${i===0?'gold':i<3?'silver':''}">${i+1}</span></td>
+        <td>${s.nombre}${mark}</td><td>${s.PG}</td><td>${s.CH}</td><td>${s.DIF>0?'+':''}${s.DIF}</td></tr>`;
+    });
+    htmlGrupos+='</tbody></table></div>';
+  } else {
+    htmlGrupos = '<div class="grupos-clasif">';
+    T.grupos.forEach(grupo=>{
+      const miembros = T.clasif.filter(s=>s.grupo===grupo.letra);
+      htmlGrupos+=`<div class="grupo-card">
+        <div class="grupo-header"><div class="grupo-letra">${grupo.letra}</div></div>
+        <table class="clasif-table">
+          <thead><tr><th>#</th><th style="text-align:left">Pareja</th><th>PG</th><th>CH</th><th>Dif</th></tr></thead>
+          <tbody>`;
+      miembros.forEach((s,i)=>{
+        const cls=s.clasif?'clasificado':'';
+        const esMejorTercero=s.posGrupo===3&&s.clasif;
+        const badge=esMejorTercero?'<span class="badge-tercero">M3</span>':'';
+        const esMejorSegundo=s.posGrupo===2&&s.clasif&&(T.numParejas===20||T.numParejas===24);
+        const badge2=esMejorSegundo?'<span class="badge-tercero">M2</span>':'';
+        htmlGrupos+=`<tr class="${cls}"><td><span class="pos-badge ${i===0?'gold':''}">${s.posGrupo}</span></td>
+          <td>${s.nombre}${badge}${badge2}</td><td>${s.PG}</td><td>${s.CH}</td><td>${s.DIF>0?'+':''}${s.DIF}</td></tr>`;
+      });
+      htmlGrupos+='</tbody></table></div>';
+    });
+    htmlGrupos+='</div>';
+  }
+  document.getElementById('clasif-grupos').innerHTML = htmlGrupos;
+
+  // Tabla clasificados
+  document.getElementById('msg-clasif').innerHTML =
+    `<div class="msg info">Se clasifican ${T.clasificados.length} parejas · ${cfg.reglaClas} · Desempate: 1/PG · 2/Dif.CH · 3/CH · 4/Partida particular · 5/Suerte</div>`;
+
+  let html='';
+  T.clasificados.forEach((s,i)=>{
+    html+=`<tr class="clasificado">
+      <td><span class="pos-badge ${i<2?'gold':''}">${i+1}</span></td>
+      <td>${s.nombre}</td><td>${s.grupo}</td><td>${s.PG}</td><td>${s.CH}</td><td>${s.DIF>0?'+':''}${s.DIF}</td>
+    </tr>`;
+  });
+  document.getElementById('body-clasificados').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+// ELIMINATORIAS
+// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// HISTORIAL DE ENFRENTAMIENTOS
+// ══════════════════════════════════════════════
+function construirHistorial() {
+  // Devuelve Set de pares "idA-idB" (siempre menor-mayor) que ya se han enfrentado
+  const hist = new Set();
+  const add = (a,b) => { if(a&&b) hist.add([Math.min(a,b),Math.max(a,b)].join('-')); };
+
+  if (T.esSorteo) {
+    T.sorteoRondas.forEach(r=>r.forEach(p=>{ if(p.saved) add(p.p1,p.p2); }));
+  } else {
+    T.grupos.forEach(g=>g.rondas.forEach(r=>r.forEach(p=>{ if(p.saved) add(p.p1,p.p2); })));
+  }
+  return hist;
+}
+
+function yaJugaron(hist, a, b) {
+  if(!a||!b) return false;
+  return hist.has([Math.min(a.id,b.id),Math.max(a.id,b.id)].join('-'));
+}
+
+// Dado un array de clasificados [c0..c7] y el cruce base (índices de rivales),
+// busca la permutación del lado débil que minimiza repeticiones respetando
+// la prioridad de clasificación (el lado fuerte no se toca).
+// Cruce base cuartos: fuertes=[0,1,2,3], débiles=[7,6,5,4]
+// Devuelve array de 4 partidas {p1,p2}
+function optimizarCruces(fuertes, debiles, hist) {
+  // Genera todas las permutaciones de débiles
+  const perms = permutaciones(debiles);
+  let mejorPerm = debiles;
+  let mejorReps = Infinity;
+
+  perms.forEach(perm => {
+    const reps = fuertes.reduce((acc,f,i)=> acc + (yaJugaron(hist,f,perm[i])?1:0), 0);
+    if (reps < mejorReps) { mejorReps=reps; mejorPerm=perm; }
+  });
+
+  return fuertes.map((f,i)=>({p1:f, p2:mejorPerm[i], g1:'',g2:'',saved:false,
+    repetido: yaJugaron(hist,f,mejorPerm[i])}));
+}
+
+function permutaciones(arr) {
+  if(arr.length<=1) return [arr];
+  const res=[];
+  arr.forEach((el,i)=>{
+    const resto=arr.filter((_,j)=>j!==i);
+    permutaciones(resto).forEach(p=>res.push([el,...p]));
+  });
+  return res;
+}
+
+// Semis: 4 ganadores de cuartos → busca mejor cruce sin repeticiones
+// Ganadores llegan en orden: g0(Q0), g1(Q1), g2(Q2), g3(Q3)
+// Cruce base: g0 vs g1, g2 vs g3 → pero también podría ser g0vsg2, g0vsg3
+// Probamos los 3 emparejamientos posibles de 4 elementos en 2 pares
+function optimizarSemis(ganadores, hist) {
+  // 3 formas de emparejar 4 en 2 pares
+  const opciones=[
+    [[0,1],[2,3]],
+    [[0,2],[1,3]],
+    [[0,3],[1,2]]
+  ];
+  let mejorOpc=opciones[0], mejorReps=Infinity;
+  opciones.forEach(opc=>{
+    const reps=opc.reduce((acc,[a,b])=>acc+(yaJugaron(hist,ganadores[a],ganadores[b])?1:0),0);
+    if(reps<mejorReps){mejorReps=reps;mejorOpc=opc;}
+  });
+  return mejorOpc.map(([a,b])=>({
+    p1:ganadores[a],p2:ganadores[b],g1:'',g2:'',saved:false,
+    repetido:yaJugaron(hist,ganadores[a],ganadores[b])
+  }));
+}
+
+function generarEliminatorias() {
+  const cl = T.clasificados;
+  const hist = construirHistorial();
+  T.elim = {cuartos:[],semis:[],final:[{p1:null,p2:null,g1:'',g2:'',saved:false}],ganador:null};
+
+  if (cl.length===4) {
+    // Semis directamente: fuertes [0,1], débiles [3,2]
+    const cruces = optimizarCruces([cl[0],cl[1]],[cl[3],cl[2]],hist);
+    T.elim.semis = cruces.map(c=>({...c}));
+  } else if (cl.length===8) {
+    // Cuartos: fuertes [0,1,2,3], débiles [7,6,5,4] (orden estándar invertido)
+    const fuertes=[cl[0],cl[1],cl[2],cl[3]];
+    const debiles=[cl[7],cl[6],cl[5],cl[4]];
+    T.elim.cuartos = optimizarCruces(fuertes, debiles, hist);
+    T.elim.semis=[
+      {p1:null,p2:null,g1:'',g2:'',saved:false},
+      {p1:null,p2:null,g1:'',g2:'',saved:false}
+    ];
+  }
+
+  renderEliminatorias();
+  showTab('elim', document.querySelectorAll('.tab')[3]);
+}
+
+function renderEliminatorias() {
+  let html='';
+  const renderFase=(partidas,label,hora,fase)=>{
+    if(!partidas||!partidas.length) return '';
+    let h=`<div class="bracket-section">
+      <div class="bracket-title">${label} <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted)">${hora}</span></div>`;
+    partidas.forEach((p,i)=>{
+      const n1=p.p1?p.p1.nombre:'— Por determinar';
+      const n2=p.p2?p.p2.nombre:'— Por determinar';
+      const v1=p.saved?p.g1:'', v2=p.saved?p.g2:'';
+      const saved=p.saved?`<span class="result-saved">✓ ${p.g1}–${p.g2}</span> <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold)">→ ${p.g1>p.g2?n1:n2}</span>`:'';
+      const repAviso=p.repetido&&!p.saved?`<span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--red);margin-left:4px">⚠ YA SE ENFRENTARON</span>`:'';
+      h+=`<div class="bracket-match" style="${p.repetido&&!p.saved?'border-color:rgba(192,57,43,0.4)':''}">
+        <span class="bracket-num">${label.split(' ')[0]} ${i+1}</span>
+        <span class="bracket-pareja">${n1}${repAviso}</span>
+        <input class="score-input" type="number" min="0" max="5" value="${v1}" placeholder="0" id="e-${fase}-${i}-1">
+        <span class="bracket-vs">—</span>
+        <input class="score-input" type="number" min="0" max="5" value="${v2}" placeholder="0" id="e-${fase}-${i}-2">
+        <span class="bracket-pareja" style="text-align:right">${n2}</span>
+        <button class="btn-save-result" onclick="guardarElim('${fase}',${i})">OK</button>
+        ${saved}
+      </div>`;
+    });
+    h+='</div>';
+    return h;
+  };
+
+  if(T.elim.cuartos.length) html+=renderFase(T.elim.cuartos,'CUARTOS DE FINAL',T.horas.cuartos,'cuartos');
+  html+=renderFase(T.elim.semis,'SEMIFINALES',T.horas.semis,'semis');
+  html+=renderFase(T.elim.final,'FINAL',T.horas.final,'final');
+
+  if(T.elim.ganador) {
+    html+=`<div class="winner-box">
+      <div class="winner-label">🏆 Campeón del Torneo</div>
+      <div class="winner-name">${T.elim.ganador}</div>
+    </div>`;
+  }
+  document.getElementById('elim-container').innerHTML = html;
+}
+
+function guardarElim(fase, i) {
+  const g1=parseInt(document.getElementById(`e-${fase}-${i}-1`).value);
+  const g2=parseInt(document.getElementById(`e-${fase}-${i}-2`).value);
+  if(isNaN(g1)||isNaN(g2)) return;
+  T.elim[fase][i].g1=g1; T.elim[fase][i].g2=g2; T.elim[fase][i].saved=true;
+  const ganador=g1>g2?T.elim[fase][i].p1:T.elim[fase][i].p2;
+  T.elim[fase][i].ganador=ganador;
+
+  if(fase==='cuartos') {
+    // Guardar ganador en su slot provisional
+    T.elim[fase][i]._ganador=ganador;
+    // Cuando los 4 cuartos estén resueltos, calcular semis con anti-repetición
+    const resueltos=T.elim.cuartos.filter(c=>c.saved);
+    if(resueltos.length===4) {
+      const hist=construirHistorial();
+      // Añadir al historial los propios cruces de cuartos ya jugados
+      T.elim.cuartos.forEach(c=>{
+        if(c.p1&&c.p2) hist.add([Math.min(c.p1.id,c.p2.id),Math.max(c.p1.id,c.p2.id)].join('-'));
+      });
+      const ganadores=T.elim.cuartos.map(c=>c._ganador);
+      const semisOpt=optimizarSemis(ganadores,hist);
+      T.elim.semis=semisOpt;
+    }
+  } else if(fase==='semis') {
+    T.elim.final[0][i===0?'p1':'p2']=ganador;
+  } else if(fase==='final') {
+    T.elim.ganador=ganador.nombre;
+  }
+  renderEliminatorias();
+}
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function getNombre(id) {
+  const p=T.parejas.find(x=>x.id===id);
+  return p?p.nombre:'Pareja '+id;
+}
+
+function resetTorneo() {
+  if(!confirm('¿Reiniciar el torneo? Se perderán todos los datos.')) return;
+  T={nombre:'',numParejas:16,parejas:[],grupos:[],esSorteo:false,sorteoRondas:[[],[],[]],clasif:[],clasificados:[],elim:{cuartos:[],semis:[],final:[],ganador:null},horas:{}};
+  document.getElementById('header-sub').textContent='Configuración pendiente';
+  generarParejas();
+  showTab('setup', document.querySelectorAll('.tab')[0]);
+}
+
+// ══════════════════════════════════════════════
+// EXPORTAR CSV
+// ══════════════════════════════════════════════
+function exportarCSV() {
+  if(!T.parejas.length){alert('Primero inicia el torneo.');return;}
+  const rows=[];
+  rows.push([T.nombre.toUpperCase()]);
+  rows.push([`${T.numParejas} PAREJAS · ${T.esSorteo?'SORTEO MANUAL':T.grupos.length+' GRUPOS'}`]);
+  rows.push([]);
+
+  if(T.esSorteo) {
+    rows.push(['RESULTADOS SORTEO']);
+    rows.push(['Ronda','Pareja 1','CH','CH','Pareja 2','Ganador']);
+    T.sorteoRondas.forEach((ronda,ri)=>ronda.forEach(p=>{
+      if(p.saved) rows.push([`R${ri+1}`,getNombre(p.p1),p.g1,p.g2,getNombre(p.p2),p.g1>p.g2?getNombre(p.p1):getNombre(p.p2)]);
+    }));
+  } else {
+    rows.push(['RESULTADOS GRUPOS']);
+    rows.push(['Grupo','Ronda','Pareja 1','CH','CH','Pareja 2','Ganador']);
+    T.grupos.forEach(g=>g.rondas.forEach((ronda,ri)=>ronda.forEach(p=>{
+      if(p.saved) rows.push([g.letra,`R${ri+1}`,getNombre(p.p1),p.g1,p.g2,getNombre(p.p2),p.g1>p.g2?getNombre(p.p1):getNombre(p.p2)]);
+    })));
+  }
+
+  rows.push([]);
+  rows.push(['CLASIFICACIÓN']);
+  rows.push(['Pos','Pareja','Grupo','PG','CH','Dif.CH','Clasif.']);
+  T.clasif.forEach((s,i)=>rows.push([i+1,s.nombre,s.grupo,s.PG,s.CH,s.DIF,s.clasif?'SÍ':'']));
+
+  if(T.elim.cuartos.length||T.elim.semis.length) {
+    rows.push([]);
+    rows.push(['ELIMINATORIAS']);
+    rows.push(['Fase','Pareja 1','CH','CH','Pareja 2','Ganador']);
+    [...T.elim.cuartos,...T.elim.semis,...T.elim.final].forEach((p,i)=>{
+      if(p&&p.saved){
+        const fase=i<T.elim.cuartos.length?'Cuartos':i<T.elim.cuartos.length+T.elim.semis.length?'Semis':'Final';
+        rows.push([fase,p.p1?.nombre||'',p.g1,p.g2,p.p2?.nombre||'',p.g1>p.g2?p.p1?.nombre:p.p2?.nombre]);
+      }
+    });
+  }
+  if(T.elim.ganador) { rows.push([]); rows.push(['CAMPEÓN',T.elim.ganador]); }
+
+  const csv=rows.map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=(T.nombre||'torneo_mus')+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════
+// GENERADOR DE PDFs
+// ══════════════════════════════════════════════
+
+function abrirPDF(html, nombre) {
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{ w.focus(); w.print(); }, 600);
+}
+
+function estilosPDF(orientacion) {
+  return `
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;600&family=IBM+Plex+Mono:wght@400;600&display=swap');
+      @page { size: A4 ${orientacion}; margin: 18mm 16mm; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'IBM Plex Sans', sans-serif; color: #1a1816; background: white; }
+      .cabecera { border-bottom: 3px solid #1a1816; padding-bottom: 10px; margin-bottom: 22px; display: flex; align-items: flex-end; justify-content: space-between; }
+      .cab-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 4px; color: #1a1816; line-height: 1; }
+      .cab-fase { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 2px; color: #888; text-transform: uppercase; }
+      .cab-hora { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 600; color: #1a1816; }
+      .enfrentamiento { border: 1.5px solid #1a1816; margin-bottom: 14px; page-break-inside: avoid; }
+      .enf-num { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 2px; color: #888; padding: 6px 14px 0; text-transform: uppercase; }
+      .enf-cuerpo { display: flex; align-items: stretch; min-height: 64px; }
+      .enf-pareja { flex: 1; padding: 10px 14px; display: flex; align-items: center; }
+      .enf-pareja-nombre { font-size: 17px; font-weight: 600; line-height: 1.2; }
+      .enf-pareja-sub { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #888; margin-top: 3px; }
+      .enf-vs { width: 36px; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #aaa; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; background: #fafafa; }
+      .enf-resultado { width: 130px; border-left: 1.5px solid #1a1816; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px; }
+      .enf-resultado-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 1.5px; color: #aaa; text-transform: uppercase; }
+      .enf-cajas { display: flex; align-items: center; gap: 8px; }
+      .caja { width: 38px; height: 38px; border: 1.5px solid #1a1816; }
+      .caja-sep { font-family: 'IBM Plex Mono', monospace; font-size: 16px; color: #bbb; }
+      .pie { margin-top: 24px; border-top: 1px solid #ddd; padding-top: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: #bbb; letter-spacing: 1px; display: flex; justify-content: space-between; }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    </style>`;
+}
+
+function bloqueEnfrentamiento(num, p1, p2, sub1, sub2) {
+  return `
+    <div class="enfrentamiento">
+      <div class="enf-num">Partida ${num}</div>
+      <div class="enf-cuerpo">
+        <div class="enf-pareja">
+          <div>
+            <div class="enf-pareja-nombre">${p1}</div>
+            ${sub1?`<div class="enf-pareja-sub">${sub1}</div>`:''}
+          </div>
+        </div>
+        <div class="enf-vs">VS</div>
+        <div class="enf-pareja">
+          <div>
+            <div class="enf-pareja-nombre">${p2}</div>
+            ${sub2?`<div class="enf-pareja-sub">${sub2}</div>`:''}
+          </div>
+        </div>
+        <div class="enf-resultado">
+          <div class="enf-resultado-label">Resultado</div>
+          <div class="enf-cajas">
+            <div class="caja"></div>
+            <div class="caja-sep">—</div>
+            <div class="caja"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function cabeceraPDF(titulo, fase, hora) {
+  return `
+    <div class="cabecera">
+      <div>
+        <div class="cab-titulo">${titulo}</div>
+        <div class="cab-fase">${fase}</div>
+      </div>
+      ${hora?`<div class="cab-hora">${hora}</div>`:''}
+    </div>`;
+}
+
+function piePDF() {
+  return `<div class="pie"><span>TORNEO DE MUS · ${T.nombre.toUpperCase()}</span><span>${new Date().toLocaleDateString('es-ES')}</span></div>`;
+}
+
+// PDF RONDAS 1, 2, 3
+function generarPDFRondas() {
+  if (!T.parejas.length) { alert('Primero inicia el torneo.'); return; }
+
+  const horas = [T.horas.r1, T.horas.r2, T.horas.r3];
+  let bloques = '';
+
+  if (T.esSorteo) {
+    [0,1,2].forEach(ri => {
+      const ronda = T.sorteoRondas[ri];
+      if (!ronda.length) return;
+      bloques += `<div style="page-break-before:${ri>0?'always':'avoid'}">`;
+      bloques += cabeceraPDF(T.nombre, `RONDA ${ri+1}`, horas[ri]);
+      bloques += '<div class="grid2">';
+      ronda.forEach((p,pi) => {
+        const n1 = p.p1 ? getNombre(p.p1) : '— Sin asignar';
+        const n2 = p.p2 ? getNombre(p.p2) : '— Sin asignar';
+        bloques += bloqueEnfrentamiento(pi+1, n1, n2, '', '');
+      });
+      bloques += '</div>' + piePDF() + '</div>';
+    });
+  } else {
+    [0,1,2].forEach(ri => {
+      bloques += `<div style="page-break-before:${ri>0?'always':'avoid'}">`;
+      bloques += cabeceraPDF(T.nombre, `RONDA ${ri+1}`, horas[ri]);
+      bloques += '<div class="grid2">';
+      let num = 1;
+      T.grupos.forEach(grupo => {
+        grupo.rondas[ri].forEach(p => {
+          const n1 = getNombre(p.p1);
+          const n2 = getNombre(p.p2);
+          bloques += bloqueEnfrentamiento(num++, n1, n2, `Grupo ${grupo.letra}`, `Grupo ${grupo.letra}`);
+        });
+      });
+      bloques += '</div>' + piePDF() + '</div>';
+    });
+  }
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Rondas · ${T.nombre}</title>${estilosPDF('landscape')}</head><body>${bloques}</body></html>`;
+  abrirPDF(html, `rondas_${T.nombre}`);
+}
+
+// PDF CUARTOS
+function generarPDFCuartos() {
+  if (!T.elim.cuartos.length && !T.elim.semis.length) { alert('Primero genera las eliminatorias.'); return; }
+
+  const partidas = T.elim.cuartos.length ? T.elim.cuartos : T.elim.semis;
+  const fase = T.elim.cuartos.length ? 'CUARTOS DE FINAL' : 'SEMIFINALES';
+  const hora = T.elim.cuartos.length ? T.horas.cuartos : T.horas.semis;
+
+  let bloques = cabeceraPDF(T.nombre, fase, hora);
+  // 4 partidas en 2x2 o 2 en 1 col
+  const usar2col = partidas.length >= 3;
+  if (usar2col) bloques += '<div class="grid2">';
+  partidas.forEach((p,i) => {
+    const n1 = p.p1 ? p.p1.nombre : '— Por determinar';
+    const n2 = p.p2 ? p.p2.nombre : '— Por determinar';
+    const rep = p.repetido ? '⚠ Ya se enfrentaron en grupos' : '';
+    bloques += bloqueEnfrentamiento(i+1, n1, n2, rep, '');
+  });
+  if (usar2col) bloques += '</div>';
+  bloques += piePDF();
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${fase} · ${T.nombre}</title>${estilosPDF('portrait')}</head><body>${bloques}</body></html>`;
+  abrirPDF(html, `cuartos_${T.nombre}`);
+}
+
+// PDF SEMIS
+function generarPDFSemis() {
+  if (!T.elim.semis.length || !T.elim.semis[0].p1) { alert('Las semifinales no están generadas todavía.'); return; }
+
+  let bloques = cabeceraPDF(T.nombre, 'SEMIFINALES', T.horas.semis);
+  T.elim.semis.forEach((p,i) => {
+    const n1 = p.p1 ? p.p1.nombre : '— Por determinar';
+    const n2 = p.p2 ? p.p2.nombre : '— Por determinar';
+    const rep = p.repetido ? '⚠ Ya se enfrentaron anteriormente' : '';
+    bloques += bloqueEnfrentamiento(i+1, n1, n2, rep, '');
+  });
+  bloques += piePDF();
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Semifinales · ${T.nombre}</title>${estilosPDF('portrait')}</head><body>${bloques}</body></html>`;
+  abrirPDF(html, `semis_${T.nombre}`);
+}
+</script>
+</body>
+</html>
