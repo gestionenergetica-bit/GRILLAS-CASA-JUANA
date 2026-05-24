@@ -139,6 +139,7 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
   <div class="tab" onclick="showTab('clasif',this)">Clasificación</div>
   <div class="tab" onclick="showTab('elim',this)">Eliminatorias</div>
   <div class="tab" onclick="showTab('ranking',this)">🏆 Ranking</div>
+  <div class="tab" onclick="showTab('guia',this)">📋 Guía &amp; Premios</div>
 </div>
 
 <div class="main">
@@ -272,6 +273,143 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
   <hr class="divider">
   <div class="sec-title" style="font-size:16px">Historial de Torneos</div>
   <div id="historial-torneos"></div>
+</div>
+
+<!-- GUÍA & PREMIOS -->
+<div id="tab-guia" class="section">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div class="sec-title" style="margin-bottom:0">Guía del Jugador &amp; Premios</div>
+    <button class="btn-secondary" onclick="generarPDFGuia()">🖨 Imprimir Guía</button>
+  </div>
+
+  <!-- CALCULADOR DE PREMIOS -->
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">CALCULADOR DE PREMIOS</div>
+    <div class="premio-total-box">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:4px">PAREJAS INSCRITAS</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input class="recaudado-input" type="number" min="8" max="24" id="calc-parejas-input" placeholder="0" style="width:70px" oninput="calcularPremiosDesdeInput()" value="">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">parejas</span>
+        </div>
+        <div id="calc-parejas" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px"></div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:4px">FONDO DE PREMIOS</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input class="recaudado-input" type="number" id="calc-recaudado" placeholder="0" oninput="calcularPremios()">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold)">€</span>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">10€ por jugador · editable</div>
+      </div>
+      <div style="text-align:right">
+        <button class="btn-secondary" onclick="usarParejasTorneo()" style="font-size:10px">↑ Usar parejas del torneo</button>
+      </div>
+    </div>
+
+    <div class="premio-box" id="premio-box">
+      <div class="premio-row">
+        <div class="premio-pos">🥇 1º</div>
+        <div class="premio-pareja" id="pr-pareja-1">— Por determinar</div>
+        <div class="premio-pct">60%</div>
+        <div class="premio-importe" id="pr-imp-1">—</div>
+      </div>
+      <div class="premio-row">
+        <div class="premio-pos">🥈 2º</div>
+        <div class="premio-pareja" id="pr-pareja-2">— Por determinar</div>
+        <div class="premio-pct">25%</div>
+        <div class="premio-importe" id="pr-imp-2">—</div>
+      </div>
+      <div class="premio-row">
+        <div class="premio-pos">🥉 3º</div>
+        <div class="premio-pareja" id="pr-pareja-3">— Por determinar</div>
+        <div class="premio-pct">10%</div>
+        <div class="premio-importe" id="pr-imp-3">—</div>
+      </div>
+      <div class="premio-row">
+        <div class="premio-pos">4º</div>
+        <div class="premio-pareja" id="pr-pareja-4">— Por determinar</div>
+        <div class="premio-pct">5%</div>
+        <div class="premio-importe" id="pr-imp-4">—</div>
+      </div>
+    </div>
+    <div class="guia-nota">Los premios son por pareja. Cuota de inscripción: 12€ por jugador (10€ van a premios, 2€ organización).</div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- GUÍA NORMAS -->
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">1. FORMATO DEL TORNEO</div>
+    <div class="guia-texto">El torneo se divide en una <strong>fase de grupos</strong> y una <strong>fase eliminatoria</strong> (cuartos, semifinales y final).</div>
+    <table class="guia-table">
+      <thead><tr><th>Parejas</th><th>Formato grupos</th><th>Clasificados</th></tr></thead>
+      <tbody>
+        <tr><td>8</td><td>2 grupos de 4 · 3 rondas</td><td>4 (2 por grupo)</td></tr>
+        <tr><td>10 / 14 / 18 / 22</td><td>Sorteo manual · 3 rondas</td><td>8 mejores</td></tr>
+        <tr><td>12</td><td>3 grupos de 4 · 3 rondas</td><td>8 (2×3 grupos + 2 mejores 3ºs)</td></tr>
+        <tr><td>16</td><td>4 grupos de 4 · 3 rondas</td><td>8 (2 por grupo)</td></tr>
+        <tr><td>20</td><td>5 grupos de 4 · 3 rondas</td><td>8 (1º cada grupo + 3 mejores 2ºs)</td></tr>
+        <tr><td>24</td><td>6 grupos de 4 · 3 rondas</td><td>8 (1º cada grupo + 2 mejores 2ºs)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">2. PUNTUACIÓN</div>
+    <div class="guia-texto">Cada partida se juega en chicos del 0 al 5. No hay empate. Se registran tres datos:</div>
+    <div class="guia-item"><strong>PG</strong> — Partidas Ganadas</div>
+    <div class="guia-item"><strong>CH</strong> — Chicos totales obtenidos</div>
+    <div class="guia-item"><strong>Dif</strong> — Diferencia entre chicos ganados y encajados</div>
+  </div>
+
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">3. CRITERIOS DE DESEMPATE</div>
+    <table class="guia-table">
+      <thead><tr><th>#</th><th>Criterio</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td>1º</td><td><strong>PG</strong></td><td>Mayor número de partidas ganadas</td></tr>
+        <tr><td>2º</td><td><strong>Dif. CH</strong></td><td>Mayor diferencia de chicos (ganados − encajados)</td></tr>
+        <tr><td>3º</td><td><strong>CH</strong></td><td>Mayor número de chicos ganados en total</td></tr>
+        <tr><td>4º</td><td><strong>Particular</strong></td><td>Resultado del enfrentamiento directo</td></tr>
+        <tr><td>5º</td><td><strong>Suerte</strong></td><td>Decide el organizador o sorteo</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">4. FASE ELIMINATORIA</div>
+    <div class="guia-item">Los mejor clasificados juegan contra los peor clasificados (1º vs 8º, 2º vs 7º...)</div>
+    <div class="guia-item">No se repiten enfrentamientos de grupos siempre que sea posible</div>
+    <div class="guia-item">Si hay repetición inevitable, se marca y se avisa</div>
+    <div class="guia-item">En semifinales los cruces se recalculan con los ganadores de cuartos</div>
+  </div>
+
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">5. HORARIOS ORIENTATIVOS</div>
+    <table class="guia-table">
+      <thead><tr><th>Fase</th><th>Hora</th></tr></thead>
+      <tbody>
+        <tr><td>Ronda 1 grupos</td><td id="guia-hora-r1">18:20</td></tr>
+        <tr><td>Ronda 2 grupos</td><td id="guia-hora-r2">19:10</td></tr>
+        <tr><td>Ronda 3 grupos</td><td id="guia-hora-r3">20:00</td></tr>
+        <tr><td>Cuartos de final</td><td id="guia-hora-cuartos">21:00</td></tr>
+        <tr><td>Semifinales</td><td id="guia-hora-semis">21:50</td></tr>
+        <tr><td>Final</td><td id="guia-hora-final">22:40</td></tr>
+      </tbody>
+    </table>
+    <div class="guia-nota">Los horarios se actualizan automáticamente con los configurados en el torneo.</div>
+  </div>
+
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">6. NORMAS GENERALES</div>
+    <div class="guia-item">Cada pareja debe estar en su mesa antes del inicio de cada ronda</div>
+    <div class="guia-item">El resultado lo comunica una de las parejas al organizador para introducirlo en el sistema</div>
+    <div class="guia-item">En caso de discrepancia en el resultado, decide el organizador</div>
+    <div class="guia-item">Las partidas pueden empezar si las dos parejas están disponibles para jugar</div>
+    <div class="guia-item">Cuota de inscripción: <strong>12€ por jugador</strong> (10€ van a premios · 2€ organización)</div>
+  </div>
+
 </div>
 
 <script>
@@ -507,8 +645,9 @@ function guardarTorneoEnRanking() {
   const finalista = finalPartida.g1 > finalPartida.g2 ? p2final : p1final;
 
   // Semifinalistas eliminados = los que no ganaron en semis
-  const semisNoJugadas = T.elim.semis.filter(s=>!s.saved).length;
-  if (semisNoJugadas > 0) {
+  const semisConPartida = T.elim.semis.filter(s=>s.p1&&s.p2);
+  const semisNoJugadas = semisConPartida.filter(s=>!s.saved).length;
+  if (semisConPartida.length > 0 && semisNoJugadas > 0) {
     document.getElementById('msg-ranking').innerHTML = `<div class="msg error">Hay ${semisNoJugadas} semifinal(es) sin resultado. Registra todos los resultados antes de guardar.</div>`;
     return;
   }
@@ -646,10 +785,22 @@ Todos los puntos de "${origen}" pasarán a "${destino}" y se borrará "${origen}
   renderRanking();
 }
 
-function borrarRanking() {
+async function borrarRanking() {
   if (!confirm('¿Borrar TODO el historial de ranking? Esta acción no se puede deshacer.')) return;
+  const vacio = {jugadores:{}, torneos:[]};
   localStorage.removeItem(LS_KEY);
-  document.getElementById('msg-ranking').innerHTML = '<div class="msg info">Historial borrado.</div>';
+  if (JSONBIN_BIN_ID) {
+    setSyncStatus('syncing','Borrando...');
+    try {
+      await fetch(`${JSONBIN_URL}/${JSONBIN_BIN_ID}`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+        body: JSON.stringify(vacio)
+      });
+      setSyncStatus('ok','Borrado ✓');
+    } catch(e) { setSyncStatus('error','Error al borrar en red'); }
+  }
+  document.getElementById('msg-ranking').innerHTML = '<div class="msg info">Historial borrado en todos los dispositivos.</div>';
   renderRanking();
 }
 
@@ -658,7 +809,116 @@ document.querySelectorAll('.tab').forEach(t => {
   if (t.textContent.includes('Ranking')) {
     t.addEventListener('click', sincronizarAlAbrir);
   }
+  if (t.textContent.includes('Guía')) {
+    t.addEventListener('click', actualizarGuia);
+  }
 });
+
+// ══════════════════════════════════════════════
+// GUÍA & PREMIOS
+// ══════════════════════════════════════════════
+const CUOTA_JUGADOR = 12;
+const CUOTA_PREMIOS = 10; // de los 12€, 10 van a premios
+const REPARTO = [0.60, 0.25, 0.10, 0.05];
+
+function actualizarGuia() {
+  // Horarios
+  const hmap = {
+    'guia-hora-r1': T.horas?.r1 || '18:20',
+    'guia-hora-r2': T.horas?.r2 || '19:10',
+    'guia-hora-r3': T.horas?.r3 || '20:00',
+    'guia-hora-cuartos': T.horas?.cuartos || '21:00',
+    'guia-hora-semis': T.horas?.semis || '21:50',
+    'guia-hora-final': T.horas?.final || '22:40'
+  };
+  Object.entries(hmap).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  });
+
+  // Parejas del torneo
+  const np = T.numParejas || 0;
+  if (np > 0) {
+    const npEl = document.getElementById('calc-parejas-input');
+    if (npEl && !npEl.value) npEl.value = np;
+    const recEl = document.getElementById('calc-recaudado');
+    if (recEl && !recEl.value) recEl.value = np * 2 * CUOTA_PREMIOS;
+    const calcPar = document.getElementById('calc-parejas');
+    if (calcPar) calcPar.textContent = np * 2 + ' jugadores · ' + (np * 2 * CUOTA_JUGADOR) + '€ recaudados';
+  }
+
+  // Nombres de parejas si hay resultado final
+  actualizarParejasPremios();
+  calcularPremios();
+}
+
+function actualizarParejasPremios() {
+  // 1º y 2º de la final
+  const fin = T.elim?.final?.[0];
+  if (fin?.saved) {
+    const p1 = fin.g1 > fin.g2 ? fin.p1 : fin.p2;
+    const p2 = fin.g1 > fin.g2 ? fin.p2 : fin.p1;
+    setTextSafe('pr-pareja-1', p1?.nombre || '— Por determinar');
+    setTextSafe('pr-pareja-2', p2?.nombre || '— Por determinar');
+  }
+  // 3º y 4º de semis eliminados
+  const semis = T.elim?.semis || [];
+  semis.forEach((s, i) => {
+    if (s?.saved) {
+      const elim = s.g1 > s.g2 ? s.p2 : s.p1;
+      setTextSafe('pr-pareja-' + (i + 3), elim?.nombre || '— Por determinar');
+    }
+  });
+}
+
+function setTextSafe(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function calcularPremios() {
+  const recEl = document.getElementById('calc-recaudado');
+  const total = parseFloat(recEl?.value) || 0;
+
+  REPARTO.forEach((pct, i) => {
+    const imp = document.getElementById('pr-imp-' + (i + 1));
+    if (imp) {
+      if (total > 0) {
+        const euros = (total * pct).toFixed(2);
+        imp.textContent = euros + ' €';
+        imp.style.color = 'var(--gold)';
+      } else {
+        imp.textContent = '—';
+        imp.style.color = 'var(--muted)';
+      }
+    }
+  });
+}
+
+function calcularPremiosDesdeInput() {
+  const npEl = document.getElementById('calc-parejas-input');
+  const np = parseInt(npEl?.value) || 0;
+  if (np >= 8) {
+    const recaudado = np * 2 * CUOTA_PREMIOS;
+    const recEl = document.getElementById('calc-recaudado');
+    if (recEl) recEl.value = recaudado;
+    const calcPar = document.getElementById('calc-parejas');
+    if (calcPar) calcPar.textContent = np * 2 + ' jugadores · ' + (np * 2 * CUOTA_JUGADOR) + '€ recaudados';
+  }
+  calcularPremios();
+}
+
+function usarParejasTorneo() {
+  if (!T.numParejas) { alert('Primero inicia un torneo.'); return; }
+  const npEl = document.getElementById('calc-parejas-input');
+  if (npEl) npEl.value = T.numParejas;
+  const recaudado = T.numParejas * 2 * CUOTA_PREMIOS;
+  const recEl = document.getElementById('calc-recaudado');
+  if (recEl) recEl.value = recaudado;
+  const calcPar = document.getElementById('calc-parejas');
+  if (calcPar) calcPar.textContent = T.numParejas * 2 + ' jugadores · ' + (T.numParejas * 2 * CUOTA_JUGADOR) + '€ recaudados';
+  calcularPremios();
+}
 
 // ══════════════════════════════════════════════
 // ESTADO
@@ -1428,9 +1688,19 @@ function validarChicos(g1, g2, contexto) {
   return true;
 }
 
-function resetTorneo() {
+async function resetTorneo() {
   if(!confirm('¿Nuevo torneo? Se perderán los datos del torneo actual (el ranking histórico se mantiene).')) return;
   borrarTorneoCurso();
+  // Limpiar también el bin de torneo en JSONBin
+  if (JSONBIN_TORNEO_ID) {
+    try {
+      await fetch(`${JSONBIN_URL}/${JSONBIN_TORNEO_ID}`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+        body: JSON.stringify({})
+      });
+    } catch(e) {}
+  }
   T={nombre:'',numParejas:16,parejas:[],grupos:[],esSorteo:false,sorteoRondas:[[],[],[]],clasif:[],clasificados:[],elim:{cuartos:[],semis:[],final:[],ganador:null},horas:{}};
   document.getElementById('header-sub').textContent='Configuración pendiente';
   generarParejas();
@@ -1723,6 +1993,167 @@ function generarPDFSemis() {
   const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Semifinales · ${T.nombre}</title>${estilosPDF('portrait')}</head><body>${bloques}</body></html>`;
   abrirPDF(html, `semis_${T.nombre}`);
 }
-</script>
+
+// PDF GUÍA — formato idéntico al PDF original
+function generarPDFGuia() {
+  const np = T.numParejas || 0;
+  const recEl = document.getElementById('calc-recaudado');
+  const recaudado = parseFloat(recEl?.value) || (np * 2 * 10);
+  const horas = T.horas || {};
+
+  const pcts  = [0.60, 0.25, 0.10, 0.05];
+  const etiq  = ['1º', '2º', '3º', '4º'];
+  const medals= ['🥇', '🥈', '🥉', ''];
+  const parejas = [1,2,3,4].map(i => document.getElementById('pr-pareja-'+i)?.textContent || '— Por determinar');
+
+  // ── estilos inline replicando el reportlab original ──
+  const GOLD  = '#C9A84C';
+  const DARK  = '#1A1916';
+  const MUTED = '#7a7670';
+  const BGROW = '#FDF8EE';
+
+  const thStyle = `background:${DARK};color:white;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;text-align:center;font-family:Helvetica,Arial,sans-serif`;
+  const tdStyle = (bg) => `background:${bg};padding:4px 10px;text-align:center;font-size:9px;color:${DARK};font-family:Helvetica,Arial,sans-serif;border-bottom:0.5px solid #ddd`;
+
+  // Tabla formatos
+  const fmtData = [
+    ['8',             '2 grupos de 4 · 3 rondas',   '4 parejas (2 por grupo)'],
+    ['10 / 14 / 18 / 22', 'Sorteo manual · 3 rondas', '8 mejores'],
+    ['12',            '3 grupos de 4 · 3 rondas',   '8 (2 por grupo + 2 mejores 3ºs)'],
+    ['16',            '4 grupos de 4 · 3 rondas',   '8 (2 por grupo)'],
+    ['20',            '5 grupos de 4 · 3 rondas',   '8 (1º de cada grupo + 3 mejores 2ºs)'],
+    ['24',            '6 grupos de 4 · 3 rondas',   '8 (1º de cada grupo + 2 mejores 2ºs)'],
+  ];
+  const fmtRows = fmtData.map((r,i) => `<tr>${r.map(d=>`<td style="${tdStyle(i%2===0?'white':BGROW)}">${d}</td>`).join('')}</tr>`).join('');
+
+  // Tabla desempate
+  const desData = [
+    ['1º   PG',        'Mayor número de partidas ganadas'],
+    ['2º   Dif. CH',   'Mayor diferencia de chicos (ganados − encajados)'],
+    ['3º   CH',        'Mayor número de chicos ganados en total'],
+    ['4º   Particular','Resultado del enfrentamiento directo entre las parejas empatadas'],
+    ['5º   Suerte',    'Si persiste el empate se realizará sorteo'],
+  ];
+  const desRows = desData.map((r,i) => `<tr>${r.map(d=>`<td style="${tdStyle(i%2===0?'white':BGROW)}">${d}</td>`).join('')}</tr>`).join('');
+
+  // Tabla horarios
+  const horData = [
+    ['Ronda 1 grupos',   horas.r1      || '18:20'],
+    ['Ronda 2 grupos',   horas.r2      || '19:10'],
+    ['Ronda 3 grupos',   horas.r3      || '20:00'],
+    ['Cuartos de final', horas.cuartos || '21:00'],
+    ['Semifinales',      horas.semis   || '21:50'],
+    ['Final',            horas.final   || '22:40'],
+  ];
+  const horRows = horData.map((r,i) => `<tr>${r.map(d=>`<td style="${tdStyle(i%2===0?'white':BGROW)}">${d}</td>`).join('')}</tr>`).join('');
+
+  // Tabla premios
+  const premioRows = pcts.map((p,i) => {
+    const imp = recaudado > 0 ? (recaudado * p).toFixed(2) + ' €' : '—';
+    const bg = i%2===0 ? 'white' : BGROW;
+    return `<tr>
+      <td style="${tdStyle(bg)}">${medals[i]} ${etiq[i]}</td>
+      <td style="${tdStyle(bg)};text-align:left">${parejas[i]}</td>
+      <td style="${tdStyle(bg)}">${Math.round(p*100)}%</td>
+      <td style="${tdStyle(bg)};font-weight:700;color:${DARK}">${imp}</td>
+    </tr>`;
+  }).join('');
+
+  const secStyle = `font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-size:12px;color:${GOLD};margin:10px 0 5px;letter-spacing:1px`;
+  const bodyStyle = `font-family:Helvetica,Arial,sans-serif;font-size:9.5px;color:${DARK};line-height:1.5;margin-bottom:4px;text-align:justify`;
+  const itemStyle = `font-family:Helvetica,Arial,sans-serif;font-size:9.5px;color:${DARK};line-height:1.5;margin-bottom:2px;padding-left:14px`;
+  const notaStyle = `font-family:Helvetica,Arial,sans-serif;font-size:8.5px;color:${MUTED};font-style:italic;margin-top:3px`;
+  const tableStyle = `width:100%;border-collapse:collapse;margin-bottom:8px`;
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+  <title>Guía Torneo de Mus</title>
+  <style>
+    @page { size: A4 portrait; margin: 14mm 16mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: white; font-size: 9.5px; }
+    table { page-break-inside: avoid; }
+    .sec-bloque { page-break-inside: avoid; }
+  </style>
+  </head><body>
+
+  <!-- CABECERA -->
+  <div style="text-align:center;margin-bottom:2px">
+    <div style="font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-size:22px;color:${DARK};letter-spacing:2px">🃏 TORNEO DE MUS</div>
+    <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;color:${MUTED};letter-spacing:1px;margin-top:1px">GUÍA DEL JUGADOR</div>
+  </div>
+  <hr style="border:none;border-top:2px solid ${GOLD};margin:8px 0 12px">
+
+  <!-- 1. FORMATO -->
+  <div style="${secStyle}">1. FORMATO DEL TORNEO</div>
+  <p style="${bodyStyle}">El torneo se divide en dos fases: una <b>fase de grupos</b> donde se determina quiénes pasan a la siguiente ronda, y una <b>fase eliminatoria</b> (cuartos, semifinales y final).</p>
+  <table style="${tableStyle}">
+    <thead><tr><th style="${thStyle}">Parejas</th><th style="${thStyle}">Formato fase grupos</th><th style="${thStyle}">Se clasifican</th></tr></thead>
+    <tbody>${fmtRows}</tbody>
+  </table>
+
+  <!-- 2. PUNTUACIÓN -->
+  <div style="${secStyle}">2. PUNTUACIÓN EN CADA PARTIDA</div>
+  <p style="${bodyStyle}">En cada partida se registra el resultado en chicos de cada pareja. Con esos datos se calculan tres estadísticas:</p>
+  <p style="${itemStyle}">• <b>PG (Partidas Ganadas):</b> número de partidas que ha ganado la pareja.</p>
+  <p style="${itemStyle}">• <b>CH (Chicos):</b> total de chicos obtenidos en todas las partidas.</p>
+  <p style="${itemStyle}">• <b>Dif (Diferencia):</b> chicos ganados menos chicos encajados.</p>
+
+  <!-- 3. DESEMPATE -->
+  <div style="${secStyle}">3. CRITERIOS DE DESEMPATE</div>
+  <p style="${bodyStyle}">Cuando dos o más parejas tienen los mismos puntos en la clasificación, el desempate se resuelve en este orden:</p>
+  <table style="${tableStyle}">
+    <thead><tr><th style="${thStyle}">Criterio</th><th style="${thStyle}">Descripción</th></tr></thead>
+    <tbody>${desRows}</tbody>
+  </table>
+
+  <!-- 4. ELIMINATORIA -->
+  <div style="${secStyle}">4. FASE ELIMINATORIA</div>
+  <p style="${bodyStyle}">Las parejas clasificadas se cruzan en cuartos de final, semifinales y final. Los cruces se generan siguiendo estas reglas:</p>
+  <p style="${itemStyle}">• Los mejor clasificados juegan contra los peor clasificados (1º vs 8º, 2º vs 7º...).</p>
+  <p style="${itemStyle}">• <b>No se repiten enfrentamientos</b> de la fase de grupos siempre que sea posible.</p>
+  <p style="${itemStyle}">• Si es imposible evitar todas las repeticiones, se avisa y se marca el enfrentamiento.</p>
+  <p style="${itemStyle}">• En semifinales, los cruces se recalculan con los ganadores de cuartos.</p>
+
+  <div style='page-break-before:always'></div>
+  <!-- 5. HORARIOS -->
+  <div style="${secStyle}">5. HORARIOS ORIENTATIVOS</div>
+  <p style="${bodyStyle}">Los horarios de cada fase son los siguientes. El organizador puede ajustarlos antes de cada torneo:</p>
+  <table style="${tableStyle}">
+    <thead><tr><th style="${thStyle}">Fase</th><th style="${thStyle}">Hora</th></tr></thead>
+    <tbody>${horRows}</tbody>
+  </table>
+  <p style="${notaStyle}">Las partidas pueden empezar si las dos parejas están disponibles para jugar.</p>
+
+  <!-- 6. NORMAS -->
+  <div style="${secStyle}">6. NORMAS GENERALES</div>
+  <p style="${itemStyle}">• Cada pareja debe estar en su mesa antes del inicio de cada ronda.</p>
+  <p style="${itemStyle}">• El resultado de cada partida lo comunica una de las dos parejas al organizador.</p>
+  <p style="${itemStyle}">• En caso de discrepancia en el resultado, prevalece el acta de resultado entregada.</p>
+  <p style="${itemStyle}">• Los emparejamientos de cada ronda se publican antes de que comience la misma.</p>
+
+  <!-- 7. PREMIOS -->
+  <div style="${secStyle}">7. CUOTA E INSCRIPCIÓN Y PREMIOS</div>
+  <p style="${bodyStyle}">La cuota de inscripción es de <b>12€ por jugador</b>. De esos 12€, <b>10€ van al fondo de premios</b> y 2€ a la organización. Los premios son por pareja.</p>
+  ${np > 0 ? `<p style="${bodyStyle}">Con <b>${np} parejas</b> inscritas (${np*2} jugadores), el fondo de premios es de <b>${(np*2*10).toFixed(0)} €</b>.</p>` : ''}
+  <table style="${tableStyle}">
+    <thead><tr>
+      <th style="${thStyle}">Posición</th>
+      <th style="${thStyle}">Pareja</th>
+      <th style="${thStyle}">%</th>
+      <th style="${thStyle}">Premio</th>
+    </tr></thead>
+    <tbody>${premioRows}</tbody>
+  </table>
+  <p style="${notaStyle}">Los importes se calculan sobre el fondo de premios total recaudado (${recaudado > 0 ? recaudado.toFixed(0) + ' €' : 'pendiente de calcular'}).</p>
+
+  <hr style="border:none;border-top:1px solid #ddd;margin:20px 0 10px">
+
+  </body></html>`;
+
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{w.focus();w.print();},600);
+}</script>
 </body>
 </html>
