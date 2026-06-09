@@ -1,1 +1,4095 @@
-# GRILLAS-CASA-JUANA
+[GRILLAS.HTML](https://github.com/user-attachments/files/28760684/GRILLAS.HTML)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestor Torneo de Mus</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🃏</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f0e0c;--card:#1a1916;--card2:#222120;--border:#333230;
+  --gold:#c9a84c;--gold2:#e8c96a;--red:#c0392b;--green:#27ae60;
+  --text:#e8e4dc;--muted:#7a7670;--white:#f5f1e8;
+}
+body.modo-claro {
+  --bg:#f5f1e8;--card:#ffffff;--card2:#f0ece0;--border:#d4cfc0;
+  --text:#1a1816;--muted:#7a7670;--white:#ffffff;
+}
+body.modo-claro .grupo-card { border-color: var(--border); }
+body.modo-claro .clasif-table td { color: var(--text); }
+body.modo-claro .bracket-match { background: var(--card); }
+body.modo-claro .pos-badge { background: var(--card2); color: var(--text); }
+body.modo-claro .msg.info { color: #7a5c00; }
+body.modo-claro .msg.success { color: #1a6b3a; }
+body.modo-claro .msg.error { color: #8b1a0e; }
+body.modo-claro .score-input { background: var(--card2); color: var(--text); border-color: var(--border); }
+body.modo-claro .score-btn { background: var(--card2); color: var(--gold); border-color: var(--border); }
+body.modo-claro .ronda-tab { color: var(--muted); }
+body.modo-claro .ronda-tab.active { color: var(--gold); }
+body.modo-claro .tab { color: var(--muted); }
+body.modo-claro .tab.active { color: var(--gold); }
+body.modo-claro .header { background: var(--card); }
+body.modo-claro .tabs { background: var(--card); }
+body.modo-claro .horario-pill { background: var(--card2); border-color: var(--border); }
+body.modo-claro .winner-box { background: var(--card2); }
+body.modo-claro .premio-total-box { background: var(--card); }
+body.modo-claro .recaudado-input { background: var(--card2); color: var(--text); border-color: var(--border); }
+body.modo-claro .fusionar-select { background: var(--card); color: var(--text); }
+.torneos-panel{background:var(--card2);border:1px solid var(--border);margin-bottom:16px;max-height:220px;overflow-y:auto;}
+.torneo-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);transition:background .15s;}
+.torneo-item:last-child{border-bottom:none;}
+.torneo-item:hover{background:rgba(201,168,76,0.06);}
+.torneo-item-nombre{font-size:13px;flex:1;color:var(--text);}
+.torneo-item-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+.torneo-item-btns{display:flex;gap:6px;}
+.torneo-item-btns button{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);}
+.torneo-item-btns button:hover{border-color:var(--gold);color:var(--gold);}
+.torneo-item-btns button.del:hover{border-color:var(--red);color:var(--red);}
+.torneo-activo-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;}
+.header{background:var(--card);border-bottom:2px solid var(--gold);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.header-title{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);letter-spacing:3px;}
+.header-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;}
+.btn-export{background:var(--gold);color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:2px;padding:8px 18px;border:none;cursor:pointer;text-transform:uppercase;}
+.btn-export:hover{background:var(--gold2);}
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;}
+.tab{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;padding:14px 20px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;transition:all .2s;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab:hover{color:var(--text);}
+.main{padding:24px;max-width:1100px;margin:0 auto;}
+.section{display:none;}.section.active{display:block;}
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.field-group{display:flex;flex-direction:column;gap:8px;}
+.field-group label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+.field-group input,.field-group select{background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;outline:none;transition:border .2s;}
+.field-group input:focus,.field-group select:focus{border-color:var(--gold);}
+.btn-primary{background:var(--gold);color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;letter-spacing:2px;padding:12px 28px;border:none;cursor:pointer;text-transform:uppercase;}
+.btn-primary:hover{background:var(--gold2);}
+.btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;padding:8px 16px;cursor:pointer;text-transform:uppercase;}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+.horarios-box{background:var(--card2);border:1px solid var(--border);padding:16px 20px;margin-bottom:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.hora-item{display:flex;flex-direction:column;gap:4px;}
+.hora-item label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+.hora-item input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:16px;padding:4px 0;width:90px;outline:none;}
+.pairs-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+.pairs-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;}
+.pairs-table td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.pairs-table td input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;padding:4px 0;width:100%;outline:none;}
+.pairs-table td input:focus{border-bottom-color:var(--gold);}
+.group-badge{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);background:var(--card2);width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
+.grupo-card{background:var(--card);border:1px solid var(--border);}
+.grupo-header{background:var(--card2);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.grupo-letra{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--gold);}
+.grupo-info{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+.ronda-tabs{display:flex;padding:0 12px;background:var(--card2);border-bottom:1px solid var(--border);}
+.ronda-tab{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);padding:8px 12px;cursor:pointer;border-bottom:2px solid transparent;}
+.ronda-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.partida-row{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.partida-row:last-child{border-bottom:none;}
+.pareja-name{font-size:13px;flex:1;min-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.vs-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);padding:0 4px;}
+.score-input{background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:18px;width:52px;height:44px;text-align:center;padding:5px;outline:none;-moz-appearance:textfield;}
+.score-input::-webkit-inner-spin-button,.score-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.score-input:focus{border-color:var(--gold);}
+.score-wrap{display:flex;align-items:center;gap:2px;}
+.score-btn{background:var(--card2);border:1px solid var(--border);color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:16px;width:30px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;user-select:none;-webkit-tap-highlight-color:transparent;}
+.score-btn:active{background:var(--border);}
+.btn-save-result{background:var(--gold);color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:5px 10px;border:none;cursor:pointer;letter-spacing:1px;white-space:nowrap;}
+.btn-save-result:hover{background:var(--gold2);}
+.result-saved{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--green);}
+.sorteo-pareja-sel{background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 10px;outline:none;min-width:140px;}
+.sorteo-pareja-sel:focus{border-color:var(--gold);}
+.grupos-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+.clasif-table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+.clasif-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;}
+.clasif-table th:nth-child(2){text-align:left;}
+.clasif-table td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;}
+.clasif-table td:nth-child(2){text-align:left;font-family:'IBM Plex Sans',sans-serif;}
+.clasif-table tr.clasificado{background:rgba(201,168,76,0.08);}
+.pos-badge{font-family:'IBM Plex Mono',monospace;background:var(--card2);display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;font-size:11px;}
+.pos-badge.gold{background:var(--gold);color:var(--bg);font-weight:600;}
+.pos-badge.silver{background:#888;color:#000;font-weight:600;}
+.grupos-clasif{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px;}
+.bracket-section{margin-bottom:32px;}
+.bracket-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:3px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:8px;}
+.bracket-match{background:var(--card);border:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.bracket-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:60px;}
+.bracket-pareja{font-size:13px;flex:1;min-width:80px;}
+.bracket-vs{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);padding:0 6px;}
+.msg{padding:12px 16px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;}
+.msg.info{background:rgba(201,168,76,0.1);border-left:3px solid var(--gold);color:var(--gold);}
+.msg.error{background:rgba(192,57,43,0.1);border-left:3px solid var(--red);color:var(--red);}
+.msg.success{background:rgba(39,174,96,0.1);border-left:3px solid var(--green);color:var(--green);}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--gold);margin-bottom:20px;}
+.divider{border:none;border-top:1px solid var(--border);margin:24px 0;}
+.flex-gap{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.horario-strip{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+.horario-pill{background:var(--card2);border:1px solid var(--border);padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold);}
+.horario-pill span{color:var(--muted);font-size:10px;display:block;}
+.winner-box{background:var(--card2);border:2px solid var(--gold);padding:24px;text-align:center;margin-top:16px;}
+.winner-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+.winner-name{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);letter-spacing:4px;}
+.badge-tercero{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--gold);background:rgba(201,168,76,0.15);padding:2px 6px;margin-left:6px;}
+.sorteo-header{background:var(--card2);padding:12px 16px;border-bottom:1px solid var(--border);}
+.sorteo-ronda-tabs{display:flex;padding:0 12px;background:var(--card2);border-bottom:1px solid var(--border);}
+.add-partida-btn{margin:10px 16px;background:transparent;border:1px dashed var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 16px;cursor:pointer;width:calc(100% - 32px);text-align:left;}
+.add-partida-btn:hover{border-color:var(--gold);color:var(--gold);}
+/* CLASIFICACION EMPATE Y EDICION */
+.empate-sorteo{background:rgba(192,57,43,0.15)!important;}
+.empate-sorteo td{color:var(--red)!important;}
+.empate-badge{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--red);background:rgba(192,57,43,0.2);padding:2px 6px;margin-left:6px;vertical-align:middle;}
+.pos-edit{background:transparent;border:none;border-bottom:1px solid var(--gold);color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:12px;width:30px;text-align:center;padding:2px;outline:none;cursor:pointer;}
+.pos-edit:focus{background:var(--card2);}
+.btn-reordenar{background:transparent;color:var(--gold);border:1px solid var(--gold);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;margin-left:8px;}
+.btn-reordenar:hover{background:var(--gold);color:var(--bg);}
+/* RANKING */
+.ranking-table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+.ranking-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;}
+.ranking-table th:nth-child(2){text-align:left;}
+.ranking-table td{padding:11px 12px;border-bottom:1px solid var(--border);text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;}
+.ranking-table td:nth-child(2){text-align:left;font-family:'IBM Plex Sans',sans-serif;font-size:14px;}
+.ranking-table tr:hover td{background:rgba(201,168,76,0.04);}
+.pts-badge{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);}
+.torneo-hist{background:var(--card2);border:1px solid var(--border);padding:14px 18px;margin-bottom:10px;}
+.torneo-hist-title{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;}
+.torneo-hist-items{display:flex;gap:16px;flex-wrap:wrap;}
+.torneo-hist-item{font-size:12px;color:var(--muted);}
+.torneo-hist-item strong{color:var(--text);}
+.fusionar-box{background:var(--card2);border:1px solid var(--border);padding:20px;margin-bottom:24px;}
+.fusionar-box label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.fusionar-select{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;padding:8px 10px;outline:none;width:100%;}
+.fusionar-select:focus{border-color:var(--gold);}
+.fusionar-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+.btn-danger-soft{background:transparent;color:var(--red);border:1px solid var(--red);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;padding:8px 16px;cursor:pointer;text-transform:uppercase;}
+.btn-danger-soft:hover{background:var(--red);color:white;}
+.notif-ronda{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;padding:14px 32px;z-index:2000;box-shadow:0 4px 24px rgba(0,0,0,0.4);animation:slideUp .3s ease;white-space:nowrap;}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+@media(max-width:600px){.setup-grid{grid-template-columns:1fr;}.grupos-container{grid-template-columns:1fr;}.horarios-box{grid-template-columns:1fr;}.tabs{overflow-x:auto;}.fusionar-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🃏 TORNEO DE MUS</div>
+    <div class="header-sub" id="header-sub">Configuración pendiente</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span id="save-indicator" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;opacity:0;transition:opacity .3s">✓ Guardado</span>
+    <button onclick="guardarEstado()" style="background:var(--green);color:white;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;padding:8px 18px;border:none;cursor:pointer;text-transform:uppercase">💾 GUARDAR</button>
+    <button id="btn-modo" onclick="toggleModo()" style="background:transparent;color:var(--muted);border:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 14px;border:none;cursor:pointer" title="Cambiar modo claro/oscuro">☀</button>
+    <button onclick="mostrarQR()" style="background:transparent;color:var(--muted);border:none;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 10px;cursor:pointer" title="QR de esta página">⬡ QR</button>
+    <button class="btn-export" onclick="exportarCSV()">⬇ Exportar Excel</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('setup',this)">Configurar</div>
+  <div class="tab" onclick="showTab('grupos',this)">Fase Grupos</div>
+  <div class="tab" onclick="showTab('clasif',this)">Clasificación</div>
+  <div class="tab" onclick="showTab('elim',this)">Eliminatorias</div>
+  <div class="tab" onclick="showTab('ranking',this)">🏆 Ranking</div>
+  <div class="tab" onclick="showTab('guia',this)">📋 Guía &amp; Premios</div>
+</div>
+
+<div class="main">
+
+<!-- SETUP -->
+<div id="tab-setup" class="section active">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div class="sec-title" style="margin-bottom:0">Configurar Torneo</div>
+    <div id="torneo-activo-badge" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid var(--gold);padding:6px 14px;letter-spacing:1px"></div>
+  </div>
+  <div id="torneos-guardados-panel" style="display:none;margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Torneos Guardados</div>
+      <button onclick="borrarTodosLosTorneos()" class="btn-danger-soft" style="font-size:10px;padding:4px 10px">🗑 Borrar todos</button>
+    </div>
+    <div class="torneos-panel" id="torneos-lista"></div>
+  </div>
+  <div class="setup-grid">
+    <div class="field-group">
+      <label>Nombre del torneo</label>
+      <div style="display:flex;gap:8px;align-items:stretch">
+        <input type="text" id="nombre-torneo" value="Torneo de Mus" style="flex:1" list="torneos-guardados-list" autocomplete="off" onkeydown="if(event.key==='Enter')confirmarNombreTorneo()">
+        <datalist id="torneos-guardados-list"></datalist>
+        <button onclick="confirmarNombreTorneo()" class="btn-primary" style="white-space:nowrap;padding:8px 14px;font-size:11px" title="Confirmar nombre del torneo">✓ Confirmar</button>
+        <button onclick="recuperarTorneoPorNombre()" class="btn-secondary" style="white-space:nowrap;padding:8px 14px;font-size:11px" title="Recuperar torneo guardado con este nombre">🔍 Recuperar</button>
+        <button onclick="borrarTorneoPorNombre()" class="btn-danger-soft" style="white-space:nowrap;padding:8px 14px;font-size:11px" title="Borrar torneo guardado con este nombre">🗑 Borrar</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Número de parejas</label>
+      <select id="num-parejas" onchange="generarParejas();guardarConfigSetup()">
+        <option value="8">8 parejas</option>
+        <option value="10">10 parejas</option>
+        <option value="12">12 parejas</option>
+        <option value="14">14 parejas</option>
+        <option value="16" selected>16 parejas</option>
+        <option value="18">18 parejas</option>
+        <option value="20">20 parejas</option>
+        <option value="22">22 parejas</option>
+        <option value="24">24 parejas</option>
+      </select>
+    </div>
+  </div>
+  <div class="horarios-box">
+    <div class="hora-item"><label>Ronda 1</label><input type="time" id="hora-r1" onchange="guardarHorasPreferencia()" value="18:20"></div>
+    <div class="hora-item"><label>Ronda 2</label><input type="time" id="hora-r2" onchange="guardarHorasPreferencia()" value="19:10"></div>
+    <div class="hora-item"><label>Ronda 3</label><input type="time" id="hora-r3" onchange="guardarHorasPreferencia()" value="20:00"></div>
+    <div class="hora-item"><label>Cuartos/4F</label><input type="time" id="hora-cuartos" onchange="guardarHorasPreferencia()" value="21:00"></div>
+    <div class="hora-item"><label>Semifinales</label><input type="time" id="hora-semis" onchange="guardarHorasPreferencia()" value="21:50"></div>
+    <div class="hora-item"><label>Final</label><input type="time" id="hora-final" onchange="guardarHorasPreferencia()" value="22:40"></div>
+  </div>
+  <div id="parejas-container"></div>
+  <div class="flex-gap">
+    <button class="btn-primary" onclick="iniciarTorneo()">▶ Iniciar Torneo</button>
+    <button class="btn-secondary" onclick="resetTorneo()">↺ Nuevo Torneo</button>
+    <button class="btn-secondary" onclick="generarPDFCuadroSetup()" title="Genera el cuadro de enfrentamientos sin iniciar el torneo">🖨 PDF Cuadro</button>
+  </div>
+</div>
+
+<!-- GRUPOS / SORTEO -->
+<div id="tab-grupos" class="section">
+  <div class="sec-title" id="grupos-titulo">Fase de Grupos</div>
+  <div id="horario-strip" class="horario-strip"></div>
+  <div id="grupos-container"></div>
+  <hr class="divider">
+  <div class="flex-gap">
+    <button class="btn-primary" onclick="calcularClasificacion()">📊 Calcular Clasificación</button>
+    <button class="btn-secondary" onclick="flashBtn(this);generarPDFRondas()">🖨 PDF Rondas 1-2-3</button>
+    <button class="btn-secondary" onclick="sincronizarTorneoBtn()" title="Sincronizar torneo en otro dispositivo">☁ Sync Torneo</button>
+    <div id="progreso-rondas"></div>
+  </div>
+</div>
+
+<!-- CLASIFICACION -->
+<div id="tab-clasif" class="section">
+  <div class="sec-title">Clasificación</div>
+  <div id="clasif-grupos"></div>
+  <hr class="divider">
+  <div class="sec-title" style="font-size:18px">Clasificados para Eliminatorias</div>
+  <div id="msg-clasif"></div>
+  <table class="clasif-table">
+    <thead><tr>
+      <th>#</th><th style="text-align:left">Pareja</th><th>Grupo</th><th>PG</th><th>CH</th><th>Dif</th>
+    </tr></thead>
+    <tbody id="body-clasificados"></tbody>
+  </table>
+  <div class="flex-gap">
+    <button class="btn-primary" onclick="generarEliminatorias()">⚔ Generar Eliminatorias</button>
+    <button class="btn-secondary" onclick="flashBtn(this);imprimirClasificacion()">🖨 Imprimir Clasificación</button>
+  </div>
+</div>
+
+<!-- ELIMINATORIAS -->
+<div id="tab-elim" class="section">
+  <div class="sec-title">Eliminatorias</div>
+  <div class="flex-gap" style="margin-bottom:20px">
+    <button class="btn-secondary" onclick="flashBtn(this);generarPDFCuartos()">🖨 PDF Cuartos</button>
+    <button class="btn-secondary" onclick="flashBtn(this);generarPDFSemis()">🖨 PDF Semis</button>
+  </div>
+  <div id="elim-container"></div>
+</div>
+
+</div>
+
+<!-- RANKING -->
+<div id="tab-ranking" class="section">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div class="sec-title" style="margin-bottom:0">Ranking Histórico</div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <select id="filtro-año" onchange="renderRanking()" style="background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 10px;outline:none">
+        <option value="">Todos los años</option>
+      </select>
+      <span id="sync-status" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px">○ Sin sincronizar</span>
+    </div>
+  </div>
+
+  <div class="flex-gap">
+    <button class="btn-primary" onclick="guardarTorneoEnRanking()">💾 Guardar Torneo en Ranking</button>
+    <button class="btn-secondary" onclick="sincronizarAlAbrir()">☁ Sincronizar</button>
+    <button class="btn-secondary" onclick="generarPDFRanking()">🖨 PDF Ranking</button>
+    <button class="btn-secondary" onclick="exportarBackup()">📦 Exportar Backup</button>
+    <button class="btn-secondary" onclick="importarBackup()">📥 Importar Backup</button>
+    <button class="btn-danger-soft" onclick="borrarRanking()">🗑 Borrar historial</button>
+  </div>
+
+  <div id="msg-ranking"></div>
+
+  <!-- FUSIONAR NOMBRES -->
+  <div class="fusionar-box">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:14px">FUSIONAR / CORREGIR NOMBRES</div>
+    <div class="fusionar-grid">
+      <div>
+        <label>Nombre a eliminar (erróneo)</label>
+        <select class="fusionar-select" id="fusionar-origen"></select>
+      </div>
+      <div>
+        <label>Fusionar con (correcto)</label>
+        <select class="fusionar-select" id="fusionar-destino"></select>
+      </div>
+    </div>
+    <button class="btn-secondary" onclick="fusionarJugadores()">Fusionar → Los puntos del erróneo pasan al correcto</button>
+  </div>
+
+  <!-- TABLA RANKING -->
+  <table class="ranking-table" id="tabla-ranking">
+    <thead><tr>
+      <th>#</th>
+      <th style="text-align:left">Jugador</th>
+      <th>Pts</th>
+      <th>🥇</th><th>🥈</th><th>🥉</th><th>4º</th>
+      <th>Torneos</th>
+      <th>Último</th>
+    </tr></thead>
+    <tbody id="body-ranking"></tbody>
+  </table>
+
+  <hr class="divider">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div class="sec-title" style="font-size:16px;margin-bottom:0">Ranking por Parejas</div>
+    <button onclick="toggleRankingParejas()" id="btn-toggle-parejas" class="btn-secondary" style="font-size:10px">Mostrar</button>
+  </div>
+  <div id="ranking-parejas-panel" style="display:none;margin-bottom:24px">
+    <table class="ranking-table">
+      <thead><tr>
+        <th>#</th><th style="text-align:left">Pareja</th><th>Pts</th>
+        <th>🥇</th><th>🥈</th><th>🥉</th><th>4º</th><th>Torneos</th>
+      </tr></thead>
+      <tbody id="body-ranking-parejas"></tbody>
+    </table>
+  </div>
+  <hr class="divider">
+  <div class="sec-title" style="font-size:16px">Historial de Torneos</div>
+  <div id="historial-torneos"></div>
+</div>
+
+<!-- GUÍA & PREMIOS -->
+<div id="tab-guia" class="section">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div class="sec-title" style="margin-bottom:0">Guía del Jugador &amp; Premios</div>
+    <button class="btn-secondary" onclick="flashBtn(this);generarPDFGuia()">🖨 Imprimir Guía</button>
+  </div>
+
+  <!-- CALCULADOR DE PREMIOS -->
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">CALCULADOR DE PREMIOS</div>
+    <div class="premio-total-box">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:4px">PAREJAS INSCRITAS</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input class="recaudado-input" type="number" min="8" max="24" id="calc-parejas-input" placeholder="0" style="width:70px" oninput="calcularPremiosDesdeInput()" onchange="calcularPremiosDesdeInput()" value="">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">parejas</span>
+        </div>
+        <div id="calc-parejas" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px"></div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:4px">FONDO DE PREMIOS</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input class="recaudado-input" type="number" id="calc-recaudado" placeholder="0" oninput="calcularPremios()">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold)">€</span>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">10€ por jugador · editable</div>
+      </div>
+      <div style="text-align:right">
+        <button class="btn-secondary" onclick="usarParejasTorneo()" style="font-size:10px">↑ Usar parejas del torneo</button>
+      </div>
+    </div>
+
+    <div class="premio-box" id="premio-box">
+      <div class="premio-row">
+        <div class="premio-pos">🥇 1º</div>
+        <div class="premio-pareja" id="pr-pareja-1">— Por determinar</div>
+        <div class="premio-pct">60%</div>
+        <div class="premio-importe" id="pr-imp-1">—</div>
+      </div>
+      <div class="premio-row">
+        <div class="premio-pos">🥈 2º</div>
+        <div class="premio-pareja" id="pr-pareja-2">— Por determinar</div>
+        <div class="premio-pct">25%</div>
+        <div class="premio-importe" id="pr-imp-2">—</div>
+      </div>
+      <div class="premio-row">
+        <div class="premio-pos">🥉 3º</div>
+        <div class="premio-pareja" id="pr-pareja-3">— Por determinar</div>
+        <div class="premio-pct">10%</div>
+        <div class="premio-importe" id="pr-imp-3">—</div>
+      </div>
+      <div class="premio-row">
+        <div class="premio-pos">4º</div>
+        <div class="premio-pareja" id="pr-pareja-4">— Por determinar</div>
+        <div class="premio-pct">5%</div>
+        <div class="premio-importe" id="pr-imp-4">—</div>
+      </div>
+    </div>
+    <div class="guia-nota">Los premios son por pareja. Cuota de inscripción: 12€ por jugador (10€ van a premios, 2€ organización).</div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- GUÍA NORMAS -->
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">1. FORMATO DEL TORNEO</div>
+    <div class="guia-texto">El torneo se divide en una <strong>fase de grupos</strong> y una <strong>fase eliminatoria</strong> (cuartos, semifinales y final).</div>
+    <table class="guia-table">
+      <thead><tr><th>Parejas</th><th>Formato grupos</th><th>Clasificados</th></tr></thead>
+      <tbody>
+        <tr><td>8</td><td>2 grupos de 4 · 3 rondas</td><td>4 (2 por grupo)</td></tr>
+        <tr><td>10 / 14 / 18 / 22</td><td>Patrón automático · 3 rondas</td><td>8 mejores</td></tr>
+        <tr><td>12</td><td>3 grupos de 4 · 3 rondas</td><td>8 (2×3 grupos + 2 mejores 3ºs)</td></tr>
+        <tr><td>16</td><td>4 grupos de 4 · 3 rondas</td><td>8 (2 por grupo)</td></tr>
+        <tr><td>20</td><td>5 grupos de 4 · 3 rondas</td><td>8 (1º cada grupo + 3 mejores 2ºs)</td></tr>
+        <tr><td>24</td><td>6 grupos de 4 · 3 rondas</td><td>8 (1º cada grupo + 2 mejores 2ºs)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">2. PUNTUACIÓN</div>
+    <div class="guia-texto">Cada partida se juega en chicos del 0 al 5. No hay empate. Se registran tres datos:</div>
+    <div class="guia-item"><strong>PG</strong> — Partidas Ganadas</div>
+    <div class="guia-item"><strong>CH</strong> — Chicos totales obtenidos</div>
+    <div class="guia-item"><strong>Dif</strong> — Diferencia entre chicos ganados y encajados</div>
+  </div>
+
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">3. CRITERIOS DE DESEMPATE</div>
+    <table class="guia-table">
+      <thead><tr><th>#</th><th>Criterio</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td colspan="3" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:1px;padding:8px 12px;background:rgba(201,168,76,0.08)">TORNEOS CON GRUPOS (8, 12, 16, 20, 24 parejas)</td></tr>
+        <tr><td>1º</td><td><strong>PG</strong></td><td>Mayor número de partidas ganadas</td></tr>
+        <tr><td>2º</td><td><strong>Dif. CH</strong></td><td>Mayor diferencia de chicos (ganados − encajados)</td></tr>
+        <tr><td>3º</td><td><strong>Particular</strong></td><td>Resultado del enfrentamiento directo entre las parejas empatadas</td></tr>
+        <tr><td>4º</td><td><strong>CH</strong></td><td>Mayor número de chicos ganados en total</td></tr>
+        <tr><td>5º</td><td><strong>Sorteo</strong></td><td>Si persiste el empate se realizará sorteo</td></tr>
+        <tr><td colspan="3" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:1px;padding:8px 12px;background:rgba(201,168,76,0.08)">TORNEOS SIN GRUPOS (10, 14, 18, 22 parejas)</td></tr>
+        <tr><td>1º</td><td><strong>PG</strong></td><td>Mayor número de partidas ganadas</td></tr>
+        <tr><td>2º</td><td><strong>Dif. CH</strong></td><td>Mayor diferencia de chicos (ganados − encajados)</td></tr>
+        <tr><td>3º</td><td><strong>CH</strong></td><td>Mayor número de chicos ganados en total</td></tr>
+        <tr><td>4º</td><td><strong>Sorteo</strong></td><td>Si persiste el empate se realizará sorteo</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">4. HORARIOS ORIENTATIVOS</div>
+    <table class="guia-table">
+      <thead><tr><th>Fase</th><th>Hora</th></tr></thead>
+      <tbody>
+        <tr><td>Ronda 1 grupos</td><td id="guia-hora-r1">18:20</td></tr>
+        <tr><td>Ronda 2 grupos</td><td id="guia-hora-r2">19:10</td></tr>
+        <tr><td>Ronda 3 grupos</td><td id="guia-hora-r3">20:00</td></tr>
+        <tr><td><strong>Cuartos de final</strong></td><td id="guia-hora-cuartos"><strong>21:00</strong></td></tr>
+        <tr><td><strong>Semifinales</strong></td><td id="guia-hora-semis"><strong>21:50</strong></td></tr>
+        <tr><td><strong>Final</strong></td><td id="guia-hora-final"><strong>22:40</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="guia-nota">Los horarios se actualizan automáticamente con los configurados en el torneo. En negrita las fases eliminatorias.</div>
+  </div>
+
+  <div class="guia-seccion">
+    <div class="guia-titulo-sec">5. NORMAS GENERALES</div>
+    <div class="guia-item">Cada pareja debe estar en su mesa antes del inicio de cada ronda</div>
+    <div class="guia-item">En caso de retraso de una de las parejas, cada 5 minutos se anotará un chico a la pareja contraria</div>
+    <div class="guia-item">La pareja ganadora lleva el acta a la mesa del organizador</div>
+    <div class="guia-item">En caso de discrepancia en el resultado, decide el organizador</div>
+    <div class="guia-item">Las partidas pueden empezar si las dos parejas están disponibles para jugar</div>
+    <div class="guia-item">Cuota de inscripción: <strong>12€ por jugador</strong> (10€ van a premios · 2€ organización)</div>
+  </div>
+
+</div>
+
+
+<script>
+// ══════════════════════════════════════════════
+// CONSTANTES LOCALSTORAGE
+// ══════════════════════════════════════════════
+const LS_KEY     = 'mus_ranking_v1';
+const LS_HORAS   = 'mus_horas_v1';
+const LS_INDICE  = 'mus_indice_v1';     // índice de torneos guardados
+const LS_TORNEO  = 'mus_torneo_curso_v1'; // legacy
+const LS_SETUP   = 'mus_setup_v1';       // legacy
+const LS_ESTADO  = 'mus_estado_v1';      // legacy
+const MAX_TORNEOS = 50;
+let _nombreConfirmado = false;
+
+function torneoKey2(nombre) {
+  return 'mus_t_' + nombre.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g,'_').toLowerCase().substring(0,40);
+}
+
+// ── Índice derivado SIEMPRE de claves reales en localStorage ──
+function getIndice() {
+  const result = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith('mus_t_')) continue;
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        const est = JSON.parse(raw);
+        const nombre = est?.T?.nombre || est?.setup?.nombre;
+        if (nombre) result.push({ key, nombre, ts: est.ts || 0, numParejas: est.T?.numParejas || est.setup?.n || 0, activo: est.T?.parejas?.length > 0 });
+      } catch(e) {}
+    }
+  } catch(e) {}
+  result.sort((a,b) => b.ts - a.ts);
+  return result;
+}
+
+function setIndice() {} // no-op: índice es derivado, no se guarda por separado
+
+function limpiarIndice() {
+  // Borrar claves mus_t_ sin contenido válido
+  const toDelete = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith('mus_t_')) continue;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) { toDelete.push(key); continue; }
+      const est = JSON.parse(raw);
+      const nombre = est?.T?.nombre || est?.setup?.nombre;
+      if (!nombre) toDelete.push(key);
+    } catch(e) { toDelete.push(key); }
+  }
+  toDelete.forEach(k => localStorage.removeItem(k));
+}
+
+function guardarEstado() {
+  try {
+    const n = parseInt(document.getElementById('num-parejas') ? document.getElementById('num-parejas').value : 16);
+    const nombreEl = document.getElementById('nombre-torneo');
+    const nombre = (nombreEl ? nombreEl.value : '') || T.nombre || '';
+    if (!nombre) return false;
+    const parejas = [];
+    for (let i=1; i<=n; i++) {
+      const el = document.getElementById('pareja-'+i);
+      parejas.push(el ? el.value : '');
+    }
+    const estado = { T: T, setup: { n: n, nombre: nombre, parejas: parejas }, ts: Date.now() };
+    const key = torneoKey2(nombre);
+    // Solo guardar si hay torneo iniciado o nombre confirmado
+    if (T.parejas?.length > 0 || _nombreConfirmado) {
+      localStorage.setItem(key, JSON.stringify(estado));
+      localStorage.setItem(LS_ESTADO, JSON.stringify(estado));
+    }
+    mostrarGuardado();
+    return true;
+  } catch(e) { return false; }
+}
+
+function cargarEstado(nombre) {
+  try {
+    // Si se pasa nombre, buscar ese torneo específico
+    let raw = null;
+    if (nombre) {
+      raw = localStorage.getItem(torneoKey2(nombre));
+    }
+    // Si no, buscar el más reciente del índice
+    if (!raw) {
+      const idx = getIndice();
+      if (idx.length > 0) raw = localStorage.getItem(idx[0].key);
+    }
+    // Fallback a legacy
+    if (!raw) raw = localStorage.getItem(LS_ESTADO);
+    if (!raw) return false;
+    const estado = JSON.parse(raw);
+    if (!estado) return false;
+
+    if (estado.T && estado.T.parejas && estado.T.parejas.length > 0) {
+      T = estado.T;
+      const sel = document.getElementById('num-parejas');
+      if (sel) { sel.value = T.numParejas; generarParejas(); }
+      const nomEl = document.getElementById('nombre-torneo');
+      if (nomEl) nomEl.value = T.nombre || '';
+      setTimeout(() => requestAnimationFrame(() => {
+        T.parejas.forEach((p, i) => {
+          const el = document.getElementById('pareja-' + (i + 1));
+          if (el) el.value = p.nombre || '';
+        });
+      }), 150);
+      return 'torneo';
+    }
+    if (estado.setup && estado.setup.n) {
+      const s = estado.setup;
+      const sel = document.getElementById('num-parejas');
+      if (sel) { sel.value = s.n; generarParejas(); }
+      const nomEl = document.getElementById('nombre-torneo');
+      if (nomEl && s.nombre) nomEl.value = s.nombre;
+      setTimeout(() => requestAnimationFrame(() => {
+        s.parejas && s.parejas.forEach((nombre2, i) => {
+          const el = document.getElementById('pareja-'+(i+1));
+          if (el && nombre2) el.value = nombre2;
+        });
+      }), 150);
+      return 'setup';
+    }
+    return false;
+  } catch(e) { return false; }
+}
+
+function borrarEstado(nombre) {
+  if (!nombre) return;
+  // Borrar TODAS las claves mus_t_ que correspondan a este nombre
+  const toDelete = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith('mus_t_')) continue;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) { toDelete.push(key); continue; }
+      const est = JSON.parse(raw);
+      const n = est?.T?.nombre || est?.setup?.nombre;
+      if (n === nombre) toDelete.push(key);
+    } catch(e) { toDelete.push(key); }
+  }
+  toDelete.forEach(k => localStorage.removeItem(k));
+  // Limpiar LS_ESTADO legacy si corresponde
+  try {
+    const raw = localStorage.getItem(LS_ESTADO);
+    if (raw) {
+      const est = JSON.parse(raw);
+      if (est?.T?.nombre === nombre || est?.setup?.nombre === nombre) {
+        localStorage.removeItem(LS_ESTADO);
+      }
+    }
+  } catch(e) {}
+  // Limpiar índice legacy LS_INDICE si existe
+  try {
+    const idxRaw = localStorage.getItem(LS_INDICE);
+    if (idxRaw) {
+      const idx = JSON.parse(idxRaw).filter(e => e.nombre !== nombre);
+      localStorage.setItem(LS_INDICE, JSON.stringify(idx));
+    }
+  } catch(e) {}
+}
+
+// Limpieza profunda: elimina del índice cualquier entrada sin clave real
+
+
+function guardarTorneoCurso() { guardarEstado(); }
+function guardarTorneoCursoCompleto() { guardarEstado(); }
+function borrarTorneoCurso() { borrarEstado(); }
+function guardarConfigSetup() { guardarEstado(); }
+
+
+// ══ RANKING localStorage ══
+
+
+
+function guardarHorasPreferencia() {
+  const horas = {
+    r1: document.getElementById('hora-r1').value,
+    r2: document.getElementById('hora-r2').value,
+    r3: document.getElementById('hora-r3').value,
+    cuartos: document.getElementById('hora-cuartos').value,
+    semis: document.getElementById('hora-semis').value,
+    final: document.getElementById('hora-final').value
+  };
+  localStorage.setItem(LS_HORAS, JSON.stringify(horas));
+}
+
+function cargarHorasPreferencia() {
+  try {
+    const raw = localStorage.getItem(LS_HORAS);
+    if (!raw) return;
+    const h = JSON.parse(raw);
+    if (h.r1) document.getElementById('hora-r1').value = h.r1;
+    if (h.r2) document.getElementById('hora-r2').value = h.r2;
+    if (h.r3) document.getElementById('hora-r3').value = h.r3;
+    if (h.cuartos) document.getElementById('hora-cuartos').value = h.cuartos;
+    if (h.semis) document.getElementById('hora-semis').value = h.semis;
+    if (h.final) document.getElementById('hora-final').value = h.final;
+  } catch(e) {}
+}
+
+function mostrarGuardado() {
+  const el = document.getElementById('save-indicator');
+  if (!el) return;
+  el.style.opacity = '1';
+  clearTimeout(window._saveIndicatorTimer);
+  window._saveIndicatorTimer = setTimeout(() => { el.style.opacity = '0'; }, 1500);
+  actualizarDatalist();
+}
+
+function actualizarDatalist() {
+  const dl = document.getElementById('torneos-guardados-list');
+  if (dl) {
+    const nombres = listarTorneosGuardados();
+    dl.innerHTML = nombres.map(n=>'<option value="'+n+'">'  ).join('');
+  }
+  renderTorneosPanel();
+}
+
+function renderTorneosPanel() {
+  const panel = document.getElementById('torneos-guardados-panel');
+  const lista = document.getElementById('torneos-lista');
+  if (!panel || !lista) return;
+  limpiarIndice();
+  const idx = getIndice();
+  if (idx.length === 0) { panel.style.display='none'; return; }
+  panel.style.display = 'block';
+  lista.innerHTML = idx.map(e => {
+    const esActivo = T.nombre === e.nombre && T.parejas?.length > 0;
+    const fecha = e.ts ? new Date(e.ts).toLocaleDateString('es-ES') : '';
+    const np = e.numParejas ? e.numParejas + ' parejas' : '';
+    // Determinar estado del torneo
+    let estado = '';
+    try {
+      const raw = localStorage.getItem(torneoKey2(e.nombre));
+      if (raw) {
+        const est = JSON.parse(raw);
+        const t = est?.T;
+        if (t?.elim?.ganador) estado = '🏆 Finalizado';
+        else if (t?.elim?.cuartos?.some(p=>p.saved)||t?.elim?.semis?.some(s=>s.saved)) estado = '⚔ Eliminatorias';
+        else if (t?.clasif?.length>0) estado = '📊 Clasificado';
+        else if (t?.parejas?.length>0) estado = '🎮 En grupos';
+        else if (est?.setup?.nombre) estado = '📝 Configurando';
+      }
+    } catch(e2) {}
+    return `<div class="torneo-item">
+      ${esActivo ? '<div class="torneo-activo-dot" title="Torneo activo"></div>' : '<div style="width:8px;flex-shrink:0"></div>'}
+      <div class="torneo-item-nombre">${e.nombre}</div>
+      <div class="torneo-item-meta">${estado}${estado&&np?' · ':''}${np}${(estado||np)&&fecha?' · ':''}${fecha}</div>
+      <div class="torneo-item-btns">
+        <button onclick="recuperarDesdePanel('${e.nombre.replace(/'/g,"\'")}')">↩ Abrir</button>
+        <button class="del" onclick="borrarDesdePanel('${e.nombre.replace(/'/g,"\'")}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function recuperarDesdePanel(nombre) {
+  document.getElementById('nombre-torneo').value = nombre;
+  recuperarTorneoPorNombre();
+}
+
+function borrarDesdePanel(nombre) {
+  document.getElementById('nombre-torneo').value = nombre;
+  borrarTorneoPorNombre();
+}
+
+function cargarTorneoCurso(nombre) {
+  // Usa cargarEstado — nombre no se usa, ya está en LS_ESTADO
+  return cargarEstado() === 'torneo';
+}
+
+function cargarTorneoPorNombre(nombre) {
+  // Alias de recuperarTorneoPorNombre para compatibilidad
+  document.getElementById('nombre-torneo').value = nombre;
+  recuperarTorneoPorNombre();
+}
+
+
+
+function listarTorneosGuardados() {
+  return getIndice().map(e => e.nombre);
+}
+const _k = ['$2a$10$iAdV','sGk3XIeehV8j','oMgpJeS0RJYDx','8DNPVaRu0kxa','OKq5KcTuppy6'];
+const JSONBIN_KEY = _k.join('');
+const JSONBIN_URL = 'https://api.jsonbin.io/v3/bins';
+let JSONBIN_BIN_ID = localStorage.getItem('mus_bin_id') || null;
+let JSONBIN_TORNEO_ID = localStorage.getItem('mus_torneo_bin_id') || null;
+let syncStatus = 'idle'; // idle | syncing | ok | error
+
+// ── Mostrar estado de sync ─────────────────────
+function setSyncStatus(status, msg) {
+  syncStatus = status;
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const colors = {idle:'var(--muted)', syncing:'var(--gold)', ok:'var(--green)', error:'var(--red)'};
+  const icons  = {idle:'○', syncing:'↻', ok:'✓', error:'✗'};
+  el.style.color = colors[status];
+  el.textContent = icons[status] + ' ' + msg;
+}
+
+// ── Carga desde JSONBin (async) ────────────────
+async function cargarRankingRemoto() {
+  if (!JSONBIN_BIN_ID) return null;
+  try {
+    setSyncStatus('syncing','Cargando...');
+    const r = await fetch(`${JSONBIN_URL}/${JSONBIN_BIN_ID}/latest`, {
+      headers:{'X-Master-Key': JSONBIN_KEY}
+    });
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    const json = await r.json();
+    setSyncStatus('ok','Sincronizado');
+    return json.record || {jugadores:{}, torneos:[]};
+  } catch(e) {
+    setSyncStatus('error','Sin conexión — usando local');
+    return null;
+  }
+}
+
+// ── Guarda en JSONBin (async) ──────────────────
+async function guardarRankingRemoto(data) {
+  setSyncStatus('syncing','Guardando...');
+  try {
+    if (!JSONBIN_BIN_ID) {
+      // Crear bin nuevo
+      const r = await fetch(JSONBIN_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY,'X-Bin-Name':'MusRanking'},
+        body: JSON.stringify(data)
+      });
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      const json = await r.json();
+      JSONBIN_BIN_ID = json.metadata.id;
+      localStorage.setItem('mus_bin_id', JSONBIN_BIN_ID);
+    } else {
+      const r = await fetch(`${JSONBIN_URL}/${JSONBIN_BIN_ID}`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+        body: JSON.stringify(data)
+      });
+      if (!r.ok) throw new Error('HTTP '+r.status);
+    }
+    // Guardar también local como caché
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    setSyncStatus('ok','Guardado ✓');
+  } catch(e) {
+    // Fallback a localStorage
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    setSyncStatus('error','Error red — guardado solo en local');
+  }
+}
+
+// ── Funciones síncronas (caché local) ─────────
+function cargarRanking() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {jugadores:{}, torneos:[]}; }
+  catch(e) { return {jugadores:{}, torneos:[]}; }
+}
+
+function guardarRankingLS(data) {
+  guardarRankingRemoto(data); // async, no bloqueante
+}
+
+// ── Sync torneo en curso vía JSONBin ──────────
+async function sincronizarTorneoRemoto(torneo) {
+  try {
+    if (!JSONBIN_TORNEO_ID) {
+      const r = await fetch(JSONBIN_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY,'X-Bin-Name':'MusTorneoCurso'},
+        body: JSON.stringify(torneo)
+      });
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      const json = await r.json();
+      JSONBIN_TORNEO_ID = json.metadata.id;
+      localStorage.setItem('mus_torneo_bin_id', JSONBIN_TORNEO_ID);
+    } else {
+      const r = await fetch(`${JSONBIN_URL}/${JSONBIN_TORNEO_ID}`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+        body: JSON.stringify(torneo)
+      });
+      if (!r.ok) throw new Error('HTTP '+r.status);
+    }
+    setSyncStatus('ok','Torneo sincronizado ✓');
+  } catch(e) {
+    setSyncStatus('error','Sin red — torneo solo en local');
+  }
+}
+
+async function cargarTorneoRemoto() {
+  if (!JSONBIN_TORNEO_ID) return null;
+  try {
+    setSyncStatus('syncing','Cargando torneo...');
+    const r = await fetch(`${JSONBIN_URL}/${JSONBIN_TORNEO_ID}/latest`, {
+      headers:{'X-Master-Key':JSONBIN_KEY}
+    });
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    const json = await r.json();
+    setSyncStatus('ok','Torneo cargado ✓');
+    return json.record;
+  } catch(e) {
+    setSyncStatus('error','Sin conexión');
+    return null;
+  }
+}
+
+// ── Guardar torneo en local + nube ────────────
+
+
+// ── Carga remota al abrir la pestaña ──────────
+async function sincronizarAlAbrir() {
+  const remoto = await cargarRankingRemoto();
+  if (remoto) {
+    localStorage.setItem(LS_KEY, JSON.stringify(remoto));
+    renderRanking();
+  }
+}
+
+async function sincronizarTorneoBtn() {
+  // If no local torneo, try to load from cloud
+  if (!T.parejas.length) {
+    const remoto = await cargarTorneoRemoto();
+    if (remoto && remoto.parejas && remoto.parejas.length) {
+      T = remoto;
+      localStorage.setItem(LS_ESTADO, JSON.stringify({T:T, setup:{n:T.numParejas,nombre:T.nombre,parejas:T.parejas.map(p=>p.nombre)}}));
+      document.getElementById('header-sub').textContent = `${T.nombre} · ${T.numParejas} Parejas · Cargado desde nube`;
+      document.getElementById('grupos-titulo').textContent = T.esSorteo ? 'Fase de Sorteo Manual' : 'Fase de Grupos';
+      renderFaseGrupos();
+      showTab('grupos', document.querySelectorAll('.tab')[1]);
+      document.getElementById('msg-ranking').innerHTML = '<div class="msg success">✓ Torneo cargado desde otro dispositivo.</div>';
+    } else {
+      alert('No hay ningún torneo en curso en la nube. Inicia uno primero.');
+    }
+  } else {
+    // Push current torneo to cloud
+    await sincronizarTorneoRemoto(T);
+    alert(`Torneo "${T.nombre}" sincronizado. Ahora puedes continuarlo en otro dispositivo pulsando "☁ Sync Torneo" con la URL vacía.`);
+  }
+}
+
+function separarJugadores(nombrePareja) {
+  return nombrePareja.split('/').map(j=>j.trim()).filter(j=>j.length>0);
+}
+
+const PUNTOS = {1:10, 2:6, 3:3, 4:3};
+const MEDALLAS = {1:'🥇',2:'🥈',3:'🥉',4:'4º'};
+
+function guardarTorneoEnRanking() {
+  if (!T.elim.ganador) { 
+    document.getElementById('msg-ranking').innerHTML = '<div class="msg error">El torneo no ha terminado todavía. Necesitas registrar el resultado de la final.</div>';
+    return;
+  }
+
+  // Extraer 1º, 2º y los 2 semifinalistas (3º/4º)
+  const finalPartida = T.elim.final[0];
+  const p1final = finalPartida.p1;
+  const p2final = finalPartida.p2;
+  const campeon   = finalPartida.g1 > finalPartida.g2 ? p1final : p2final;
+  const finalista = finalPartida.g1 > finalPartida.g2 ? p2final : p1final;
+
+  // Semifinalistas eliminados = los que no ganaron en semis
+  const semisConPartida = T.elim.semis.filter(s=>s.p1&&s.p2);
+  const semisNoJugadas = semisConPartida.filter(s=>!s.saved).length;
+  if (semisConPartida.length > 0 && semisNoJugadas > 0) {
+    document.getElementById('msg-ranking').innerHTML = `<div class="msg error">Hay ${semisNoJugadas} semifinal(es) sin resultado. Registra todos los resultados antes de guardar.</div>`;
+    return;
+  }
+  // Para 8 parejas (semis directas sin cuartos), verificar que hay ganador final
+  if (T.numParejas === 8 && !T.elim.ganador) {
+    document.getElementById('msg-ranking').innerHTML = '<div class="msg error">El torneo no ha terminado. Registra el resultado de la final.</div>';
+    return;
+  }
+  const semisEliminados = T.elim.semis.map(s => {
+    if (!s.saved) return null;
+    return s.g1 > s.g2 ? s.p2 : s.p1;
+  }).filter(Boolean);
+
+  const posiciones = [
+    {pos:1, pareja: campeon},
+    {pos:2, pareja: finalista},
+    ...semisEliminados.map(p=>({pos:3, pareja:p}))
+  ];
+
+  // Nombre del torneo ya guardado?
+  const data = cargarRanking();
+  const anioActual = new Date().getFullYear().toString();
+  const torneoExistente = data.torneos.find(t => t.nombre===T.nombre &&
+    (t.fecha===new Date().toLocaleDateString('es-ES') || (t.fecha && t.fecha.includes(anioActual))));
+  if (torneoExistente) {
+    if (!confirm(`El torneo "${T.nombre}" ya está guardado este año (${torneoExistente.fecha}). ¿Sobreescribir?`)) return;
+    const idx = data.torneos.findIndex(t => t.nombre===T.nombre &&
+      (t.fecha===new Date().toLocaleDateString('es-ES') || (t.fecha && t.fecha.includes(anioActual))));
+    const torneoAnterior = data.torneos[idx];
+    // Revertir puntos
+    torneoAnterior.resultados.forEach(r => {
+      r.jugadores.forEach(j => {
+        if (data.jugadores[j]) {
+          data.jugadores[j].puntos -= r.puntos;
+          data.jugadores[j][`pos${r.pos}`] = (data.jugadores[j][`pos${r.pos}`]||1) - 1;
+          data.jugadores[j].torneos = (data.jugadores[j].torneos||1) - 1;
+        }
+      });
+    });
+    data.torneos.splice(idx,1);
+  }
+
+  const torneoEntry = {
+    nombre: T.nombre,
+    fecha: new Date().toLocaleDateString('es-ES'),
+    numParejas: T.numParejas,
+    resultados: []
+  };
+
+  posiciones.forEach(({pos, pareja}) => {
+    if (!pareja) return;
+    const jugadores = separarJugadores(pareja.nombre);
+    const pts = PUNTOS[pos];
+    jugadores.forEach(j => {
+      if (!data.jugadores[j]) data.jugadores[j] = {puntos:0, torneos:0, pos1:0, pos2:0, pos3:0, pos4:0};
+      data.jugadores[j].puntos += pts;
+      data.jugadores[j][`pos${pos}`] = (data.jugadores[j][`pos${pos}`]||0) + 1;
+      data.jugadores[j].torneos += 1;
+    });
+    torneoEntry.resultados.push({pos, pareja:pareja.nombre, jugadores, puntos:pts});
+  });
+
+  data.torneos.push(torneoEntry);
+  guardarRankingLS(data);
+
+  document.getElementById('msg-ranking').innerHTML = '<div class="msg success">✓ Torneo guardado en el ranking.</div>';
+  renderRanking();
+}
+
+function renderRanking() {
+  const data = cargarRanking();
+  const filtroAño = document.getElementById('filtro-año')?.value || '';
+
+  // Poblar selector de años
+  const añosSel = document.getElementById('filtro-año');
+  if (añosSel) {
+    const años = [...new Set(data.torneos.map(t => t.fecha?.split('/')[2]).filter(Boolean))].sort().reverse();
+    const currentVal = añosSel.value;
+    añosSel.innerHTML = '<option value="">Todos los años</option>' +
+      años.map(a => `<option value="${a}" ${a===currentVal?'selected':''}>${a}</option>`).join('');
+  }
+
+  // Filtrar por año si se seleccionó
+  let jugadoresData = data;
+  if (filtroAño) {
+    const torneosFiltrados = data.torneos.filter(t => t.fecha?.endsWith(filtroAño));
+    const jugadoresFiltrados = {};
+    torneosFiltrados.forEach(t => {
+      t.resultados?.forEach(r => {
+        r.jugadores?.forEach(j => {
+          if (!jugadoresFiltrados[j]) jugadoresFiltrados[j] = {puntos:0,torneos:0,pos1:0,pos2:0,pos3:0,pos4:0};
+          jugadoresFiltrados[j].puntos += r.puntos;
+          jugadoresFiltrados[j].torneos += 1;
+          jugadoresFiltrados[j]['pos'+r.pos] = (jugadoresFiltrados[j]['pos'+r.pos]||0)+1;
+        });
+      });
+    });
+    jugadoresData = {jugadores: jugadoresFiltrados, torneos: torneosFiltrados};
+  }
+
+  const jugadores = Object.entries(jugadoresData.jugadores)
+    .map(([nombre,s])=>({nombre,...s}))
+    .sort((a,b) => {
+      if (b.puntos !== a.puntos) return b.puntos - a.puntos;
+      return b.torneos - a.torneos;
+    });
+
+  // Poblar selects de fusión
+  const opts = jugadores.map(j=>`<option value="${j.nombre}">${j.nombre}</option>`).join('');
+  document.getElementById('fusionar-origen').innerHTML = opts;
+  document.getElementById('fusionar-destino').innerHTML = opts;
+
+  // Tabla ranking
+  let html = '';
+  jugadores.forEach((j,i) => {
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    // Buscar último torneo de este jugador
+    const ultimoT = [...data.torneos].reverse().find(t=>
+      t.resultados?.some(r=>r.jugadores?.includes(j.nombre))
+    );
+    const ultimoFecha = ultimoT ? ultimoT.fecha : '—';
+    html += `<tr>
+      <td>${medal||i+1}</td>
+      <td>${j.nombre}</td>
+      <td><span class="pts-badge">${j.puntos}</span></td>
+      <td>${j.pos1||0}</td><td>${j.pos2||0}</td><td>${j.pos3||0}</td><td>${j.pos4||0}</td>
+      <td>${j.torneos||0}</td>
+      <td style="font-size:10px;color:var(--muted)">${ultimoFecha}</td>
+    </tr>`;
+  });
+  document.getElementById('body-ranking').innerHTML = html || '<tr><td colspan="8" style="color:var(--muted);padding:20px;text-align:center">Sin datos todavía</td></tr>';
+
+  // Actualizar ranking parejas si está visible
+  if (document.getElementById('ranking-parejas-panel')?.style.display !== 'none') {
+    renderRankingParejas();
+  }
+
+  // Historial torneos
+  let hist = '';
+  [...jugadoresData.torneos].reverse().forEach(t => {
+    hist += `<div class="torneo-hist">
+      <div class="torneo-hist-title">${t.nombre} · ${t.fecha} · ${t.numParejas} parejas</div>
+      <div class="torneo-hist-items">`;
+    t.resultados.forEach(r => {
+      hist += `<div class="torneo-hist-item">${MEDALLAS[r.pos]||r.pos+'º'} <strong>${r.pareja}</strong> (${r.puntos}pts)</div>`;
+    });
+    hist += '</div></div>';
+  });
+  document.getElementById('historial-torneos').innerHTML = hist || '<div class="msg info">Sin torneos guardados</div>';
+}
+
+function fusionarJugadores() {
+  const origen = document.getElementById('fusionar-origen').value;
+  const destino = document.getElementById('fusionar-destino').value;
+  if (!origen || !destino || origen === destino) {
+    alert('Selecciona dos jugadores distintos.'); return;
+  }
+  if (!confirm(`¿Fusionar "${origen}" → "${destino}"?
+Todos los puntos de "${origen}" pasarán a "${destino}" y se borrará "${origen}".`)) return;
+
+  const data = cargarRanking();
+  if (!data.jugadores[origen]) { alert('Jugador origen no encontrado.'); return; }
+  if (!data.jugadores[destino]) data.jugadores[destino] = {puntos:0,torneos:0,pos1:0,pos2:0,pos3:0,pos4:0};
+
+  const o = data.jugadores[origen];
+  const d = data.jugadores[destino];
+  d.puntos  += o.puntos;
+  d.torneos += o.torneos;
+  d.pos1 = (d.pos1||0) + (o.pos1||0);
+  d.pos2 = (d.pos2||0) + (o.pos2||0);
+  d.pos3 = (d.pos3||0) + (o.pos3||0);
+  d.pos4 = (d.pos4||0) + (o.pos4||0);
+
+  // Actualizar historial de torneos
+  data.torneos.forEach(t => t.resultados.forEach(r => {
+    r.jugadores = r.jugadores.map(j => j === origen ? destino : j);
+    if (r.pareja === origen) r.pareja = destino;
+  }));
+
+  delete data.jugadores[origen];
+  guardarRankingLS(data);
+  document.getElementById('msg-ranking').innerHTML = `<div class="msg success">✓ "${origen}" fusionado con "${destino}".</div>`;
+  renderRanking();
+}
+
+function exportarBackup() {
+  try {
+    const backup = {
+      version: 1,
+      fecha: new Date().toISOString(),
+      ranking: cargarRanking(),
+      torneos_guardados: {},
+      indice: getIndice()
+    };
+    // Incluir todos los torneos guardados
+    getIndice().forEach(e => {
+      const raw = localStorage.getItem(torneoKey2(e.nombre));
+      if (raw) backup.torneos_guardados[e.nombre] = JSON.parse(raw);
+    });
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backup_mus_' + new Date().toLocaleDateString('es-ES').replace(/\//g,'-') + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) {
+    alert('Error al exportar: ' + e.message);
+  }
+}
+
+function importarBackup() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const backup = JSON.parse(ev.target.result);
+        if (!backup.version || !backup.ranking) {
+          alert('Archivo de backup no válido.');
+          return;
+        }
+        if (!confirm(`¿Importar backup del ${new Date(backup.fecha).toLocaleDateString('es-ES')}?
+
+Esto AÑADIRÁ los datos al historial existente (no sobreescribe).`)) return;
+
+        // Importar ranking — fusionar sin duplicar
+        const dataActual = cargarRanking();
+        const backupRanking = backup.ranking;
+        // Fusionar jugadores
+        Object.entries(backupRanking.jugadores || {}).forEach(([nombre, stats]) => {
+          if (!dataActual.jugadores[nombre]) {
+            dataActual.jugadores[nombre] = stats;
+          } else {
+            // Sumar solo si el torneo no está ya
+            const yaEsta = dataActual.torneos.some(t =>
+              backupRanking.torneos?.some(bt => bt.nombre===t.nombre && bt.fecha===t.fecha));
+            if (!yaEsta) {
+              dataActual.jugadores[nombre].puntos += stats.puntos;
+              dataActual.jugadores[nombre].torneos += stats.torneos;
+              ['pos1','pos2','pos3','pos4'].forEach(k => {
+                dataActual.jugadores[nombre][k] = (dataActual.jugadores[nombre][k]||0) + (stats[k]||0);
+              });
+            }
+          }
+        });
+        // Añadir torneos nuevos
+        (backupRanking.torneos || []).forEach(t => {
+          if (!dataActual.torneos.find(dt => dt.nombre===t.nombre && dt.fecha===t.fecha)) {
+            dataActual.torneos.push(t);
+          }
+        });
+        guardarRankingLS(dataActual);
+
+        // Importar torneos guardados
+        Object.entries(backup.torneos_guardados || {}).forEach(([nombre, estado]) => {
+          const key = torneoKey2(nombre);
+          if (!localStorage.getItem(key)) {
+            localStorage.setItem(key, JSON.stringify(estado));
+            const idx = getIndice();
+            if (!idx.find(e => e.key===key)) {
+              idx.push({key, nombre, ts: Date.now(), numParejas: estado.T?.numParejas||0});
+              setIndice(idx);
+            }
+          }
+        });
+
+        actualizarDatalist();
+        renderTorneosPanel();
+        renderRanking();
+        alert('Backup importado correctamente.');
+      } catch(err) {
+        alert('Error al importar: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+async function borrarRanking() {
+  if (!confirm('¿Borrar TODO el historial de ranking? Esta acción no se puede deshacer.')) return;
+  const vacio = {jugadores:{}, torneos:[]};
+  localStorage.removeItem(LS_KEY);
+  if (JSONBIN_BIN_ID) {
+    setSyncStatus('syncing','Borrando...');
+    try {
+      await fetch(`${JSONBIN_URL}/${JSONBIN_BIN_ID}`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+        body: JSON.stringify(vacio)
+      });
+      setSyncStatus('ok','Borrado ✓');
+    } catch(e) { setSyncStatus('error','Error al borrar en red'); }
+  }
+  document.getElementById('msg-ranking').innerHTML = '<div class="msg info">Historial borrado en todos los dispositivos.</div>';
+  renderRanking();
+}
+
+// Sincronizar ranking al abrir la pestaña
+document.querySelectorAll('.tab').forEach(t => {
+  if (t.textContent.includes('Ranking')) {
+    t.addEventListener('click', sincronizarAlAbrir);
+  }
+  if (t.textContent.includes('Guía')) {
+    t.addEventListener('click', actualizarGuia);
+  }
+});
+
+// ══════════════════════════════════════════════
+// GUÍA & PREMIOS
+// ══════════════════════════════════════════════
+const CUOTA_JUGADOR = 12;
+const CUOTA_PREMIOS = 10; // de los 12€, 10 van a premios
+const REPARTO = [0.60, 0.25, 0.10, 0.05];
+
+function actualizarGuia() {
+  // Horarios
+  const hmap = {
+    'guia-hora-r1': T.horas?.r1 || '18:20',
+    'guia-hora-r2': T.horas?.r2 || '19:10',
+    'guia-hora-r3': T.horas?.r3 || '20:00',
+    'guia-hora-cuartos': (T.horas?.cuartos || '21:00') + (T.numParejas===8?' (semis)':''),
+    'guia-hora-semis': T.horas?.semis || '21:50',
+    'guia-hora-final': T.horas?.final || '22:40'
+  };
+  Object.entries(hmap).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  });
+
+  // Parejas: torneo activo o campo configurar
+  const np = (T.numParejas && T.parejas && T.parejas.length > 0 ? T.numParejas : 0)
+    || parseInt(document.getElementById('num-parejas')?.value) || 0;
+  if (np > 0) {
+    const npEl = document.getElementById('calc-parejas-input');
+    if (npEl) npEl.value = np;
+    const recEl = document.getElementById('calc-recaudado');
+    if (recEl) recEl.value = np * 2 * CUOTA_PREMIOS;
+    const calcPar = document.getElementById('calc-parejas');
+    if (calcPar) calcPar.textContent = np * 2 + ' jugadores · ' + (np * 2 * CUOTA_JUGADOR) + '€ recaudados';
+    calcularPremios();
+  }
+
+  // Nombres de parejas si hay resultado final
+  actualizarParejasPremios();
+  calcularPremios();
+}
+
+function actualizarParejasPremios() {
+  // 1º y 2º de la final
+  const fin = T.elim?.final?.[0];
+  if (fin?.saved) {
+    const p1 = fin.g1 > fin.g2 ? fin.p1 : fin.p2;
+    const p2 = fin.g1 > fin.g2 ? fin.p2 : fin.p1;
+    setTextSafe('pr-pareja-1', p1?.nombre || '— Por determinar');
+    setTextSafe('pr-pareja-2', p2?.nombre || '— Por determinar');
+  }
+  // 3º y 4º de semis eliminados
+  const semis = T.elim?.semis || [];
+  semis.forEach((s, i) => {
+    if (s?.saved) {
+      const elim = s.g1 > s.g2 ? s.p2 : s.p1;
+      setTextSafe('pr-pareja-' + (i + 3), elim?.nombre || '— Por determinar');
+    }
+  });
+}
+
+function setTextSafe(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function calcularPremios() {
+  const recEl = document.getElementById('calc-recaudado');
+  const total = parseFloat(recEl?.value) || 0;
+
+  REPARTO.forEach((pct, i) => {
+    const imp = document.getElementById('pr-imp-' + (i + 1));
+    if (imp) {
+      if (total > 0) {
+        const euros = (total * pct).toFixed(2);
+        imp.textContent = euros + ' €';
+        imp.style.color = 'var(--gold)';
+      } else {
+        imp.textContent = '—';
+        imp.style.color = 'var(--muted)';
+      }
+    }
+  });
+}
+
+function mostrarQR() {
+  const url = window.location.href.split('?')[0];
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = `<div style="background:var(--card);border:2px solid var(--gold);padding:28px;text-align:center;max-width:340px;width:100%">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:3px;margin-bottom:16px">🃏 ESCANEA PARA ABRIR</div>
+    <div id="qr-container" style="background:white;padding:12px;display:inline-block;margin-bottom:14px"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);word-break:break-all;margin-bottom:16px">${url}</div>
+    <button onclick="navigator.clipboard.writeText('${url.replace(/'/g,"\'")}').then(()=>{this.textContent='✓ Copiado';setTimeout(()=>this.textContent='Copiar URL',2000)}).catch(()=>{})" class="btn-secondary" style="font-size:11px;margin-right:8px">Copiar URL</button>
+    <button onclick="this.closest('[style*=fixed]').remove()" class="btn-secondary" style="font-size:11px">Cerrar</button>
+  </div>`;
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+  document.body.appendChild(modal);
+
+  // Generar QR localmente con canvas (sin API externa)
+  generarQRCanvas(url, document.getElementById('qr-container'));
+}
+
+function generarQRCanvas(url, container) {
+  // QR mínimo usando la librería qrcode-generator embebida
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+  script.onload = () => {
+    try {
+      new QRCode(container, {
+        text: url,
+        width: 220,
+        height: 220,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch(e) {
+      container.innerHTML = '<div style="color:#888;font-size:11px;padding:20px">Error al generar QR</div>';
+    }
+  };
+  script.onerror = () => {
+    // Fallback: usar la API externa
+    container.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}" width="220" height="220" alt="QR">`;
+  };
+  document.head.appendChild(script);
+}
+
+function toggleRankingParejas() {
+  const panel = document.getElementById('ranking-parejas-panel');
+  const btn = document.getElementById('btn-toggle-parejas');
+  if (!panel) return;
+  const visible = panel.style.display !== 'none';
+  panel.style.display = visible ? 'none' : 'block';
+  if (btn) btn.textContent = visible ? 'Mostrar' : 'Ocultar';
+  if (!visible) renderRankingParejas();
+}
+
+function renderRankingParejas() {
+  const data = cargarRanking();
+  const filtroAño = document.getElementById('filtro-año')?.value || '';
+  const parejas = {};
+
+  const torneos = filtroAño
+    ? data.torneos.filter(t => t.fecha?.endsWith(filtroAño))
+    : data.torneos;
+
+  torneos.forEach(t => {
+    t.resultados?.forEach(r => {
+      const nombre = r.pareja;
+      if (!nombre) return;
+      if (!parejas[nombre]) parejas[nombre] = {nombre, puntos:0, torneos:0, pos1:0, pos2:0, pos3:0, pos4:0};
+      parejas[nombre].puntos += r.puntos;
+      parejas[nombre].torneos += 1;
+      parejas[nombre]['pos'+r.pos] = (parejas[nombre]['pos'+r.pos]||0)+1;
+    });
+  });
+
+  const sorted = Object.values(parejas).sort((a,b) =>
+    b.puntos !== a.puntos ? b.puntos-a.puntos : b.torneos-a.torneos);
+
+  const body = document.getElementById('body-ranking-parejas');
+  if (!body) return;
+  if (!sorted.length) {
+    body.innerHTML = '<tr><td colspan="8" style="color:var(--muted);padding:16px;text-align:center">Sin datos todavía</td></tr>';
+    return;
+  }
+  body.innerHTML = sorted.map((p,i) => {
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    return `<tr>
+      <td>${medal||i+1}</td>
+      <td>${p.nombre}</td>
+      <td><span class="pts-badge">${p.puntos}</span></td>
+      <td>${p.pos1||0}</td><td>${p.pos2||0}</td><td>${p.pos3||0}</td><td>${p.pos4||0}</td>
+      <td>${p.torneos||0}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleModo() {
+  const body = document.body;
+  const btn = document.getElementById('btn-modo');
+  body.classList.toggle('modo-claro');
+  const claro = body.classList.contains('modo-claro');
+  if (btn) btn.textContent = claro ? '🌙' : '☀';
+  localStorage.setItem('mus_modo', claro ? 'claro' : 'oscuro');
+}
+
+function actualizarBadgeTorneoActivo() {
+  const badge = document.getElementById('torneo-activo-badge');
+  if (!badge) return;
+  if (T.parejas && T.parejas.length > 0) {
+    badge.style.display = 'block';
+    badge.textContent = '⚡ TORNEO ACTIVO: ' + T.nombre;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function borrarTodosLosTorneos() {
+  if (!confirm('¿Borrar TODOS los torneos guardados? Esta acción no se puede deshacer.')) return;
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && (k.startsWith('mus_t_') || k === LS_INDICE || k === LS_ESTADO || k === LS_SETUP || k === LS_TORNEO + '_ultimo')) {
+      keys.push(k);
+    }
+  }
+  keys.forEach(k => localStorage.removeItem(k));
+  _nombreConfirmado = false;
+  T = {nombre:'',numParejas:16,parejas:[],grupos:[],esSorteo:false,
+       sorteoRondas:[[],[],[]],clasif:[],clasificados:[],
+       elim:{cuartos:[],semis:[],final:[],ganador:null},horas:{}};
+  document.getElementById('header-sub').textContent = 'Configuración pendiente';
+  actualizarBadgeTorneoActivo();
+  generarParejas();
+  actualizarDatalist();
+  renderTorneosPanel();
+}
+
+function confirmarNombreTorneo() {
+  const nombre = document.getElementById('nombre-torneo').value.trim();
+  if (!nombre) { alert('Escribe el nombre del torneo.'); return; }
+  // Actualizar T.nombre si hay torneo activo
+  if (T.parejas && T.parejas.length > 0) {
+    T.nombre = nombre;
+  }
+  _nombreConfirmado = true;
+  guardarEstado();
+  actualizarDatalist();
+  actualizarBadgeTorneoActivo();
+  // Feedback visual
+  const btn = document.querySelector('[onclick="confirmarNombreTorneo()"]');
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Guardado';
+    btn.style.background = 'var(--green)';
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1500);
+  }
+}
+
+function recuperarTorneoPorNombre() {
+  const nombre = document.getElementById('nombre-torneo').value.trim();
+  if (!nombre) { alert('Escribe el nombre del torneo primero.'); return; }
+  try {
+    // Buscar en índice primero
+    let raw = localStorage.getItem(torneoKey2(nombre));
+    // Fallback legacy
+    if (!raw) raw = localStorage.getItem(LS_ESTADO);
+    if (!raw) { alert('No hay ningún torneo guardado con el nombre "' + nombre + '".'); return; }
+    const estado = JSON.parse(raw);
+    const matchT = estado?.T?.nombre === nombre;
+    const matchS = estado?.setup?.nombre === nombre;
+    if (!matchT && !matchS) {
+      alert('No se encontró ningún torneo guardado con el nombre "' + nombre + '".');
+      return;
+    }
+    if (matchT && estado.T.parejas && estado.T.parejas.length > 0) {
+      T = estado.T;
+      // Rellenar formulario
+      const sel = document.getElementById('num-parejas');
+      if (sel) { sel.value = T.numParejas; generarParejas(); }
+      const nomEl = document.getElementById('nombre-torneo');
+      if (nomEl) nomEl.value = T.nombre;
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          T.parejas.forEach((p, i) => {
+            const el = document.getElementById('pareja-' + (i+1));
+            if (el) el.value = p.nombre || '';
+          });
+        });
+      }, 150);
+      document.getElementById('header-sub').textContent = T.nombre + ' · ' + T.numParejas + ' Parejas · Recuperado';
+      document.getElementById('grupos-titulo').textContent = T.esSorteo ? 'Fase Libre' : 'Fase de Grupos';
+      document.title = T.nombre + ' · Gestor Torneo de Mus';
+      actualizarBadgeTorneoActivo();
+      actualizarGuia();
+      iniciarMonitorRondas();
+      renderFaseGrupos();
+      showTab('grupos', document.querySelectorAll('.tab')[1]);
+      mostrarGuardado();
+    } else if (matchS && estado.setup) {
+      const s = estado.setup;
+      const sel = document.getElementById('num-parejas');
+      if (sel) { sel.value = s.n; generarParejas(); }
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          s.parejas && s.parejas.forEach((nombre2, i) => {
+            const el = document.getElementById('pareja-' + (i+1));
+            if (el && nombre2) el.value = nombre2;
+          });
+        });
+      }, 150);
+    }
+  } catch(e) {
+    alert('Error al recuperar: ' + e.message);
+  }
+}
+
+function borrarTorneoPorNombre() {
+  const nombre = document.getElementById('nombre-torneo').value.trim();
+  if (!nombre) { alert('Escribe el nombre del torneo primero.'); return; }
+  const key = torneoKey2(nombre);
+  const raw = localStorage.getItem(key) || localStorage.getItem(LS_ESTADO);
+  if (!raw) { alert('No hay ningún torneo guardado con el nombre "' + nombre + '".'); return; }
+  if (!confirm('¿Borrar el torneo "' + nombre + '"? Esta acción no se puede deshacer.')) return;
+  borrarEstado(nombre);
+  _nombreConfirmado = false; // resetear flag
+  // Resetear T si era el torneo activo
+  if (T.nombre === nombre) {
+    T = {nombre:'',numParejas:16,parejas:[],grupos:[],esSorteo:false,
+         sorteoRondas:[[],[],[]],clasif:[],clasificados:[],
+         elim:{cuartos:[],semis:[],final:[],ganador:null},horas:{}};
+    document.getElementById('header-sub').textContent = 'Configuración pendiente';
+    actualizarBadgeTorneoActivo();
+    generarParejas();
+    showTab('setup', document.querySelectorAll('.tab')[0]);
+  }
+  // Forzar actualización del panel y datalist
+  actualizarDatalist();
+  renderTorneosPanel();
+  alert('Torneo "' + nombre + '" borrado.');
+}
+
+function calcularPremiosDesdeInput() {
+  const npEl = document.getElementById('calc-parejas-input');
+  const np = parseInt(npEl?.value) || 0;
+  if (np >= 8) {
+    const recaudado = np * 2 * CUOTA_PREMIOS;
+    const recEl = document.getElementById('calc-recaudado');
+    if (recEl) recEl.value = recaudado;
+    const calcPar = document.getElementById('calc-parejas');
+    if (calcPar) calcPar.textContent = np * 2 + ' jugadores · ' + (np * 2 * CUOTA_JUGADOR) + '€ recaudados';
+  }
+  calcularPremios();
+}
+
+function usarParejasTorneo() {
+  if (!T.numParejas) { alert('Primero inicia un torneo.'); return; }
+  const npEl = document.getElementById('calc-parejas-input');
+  if (npEl) npEl.value = T.numParejas;
+  const recaudado = T.numParejas * 2 * CUOTA_PREMIOS;
+  const recEl = document.getElementById('calc-recaudado');
+  if (recEl) recEl.value = recaudado;
+  const calcPar = document.getElementById('calc-parejas');
+  if (calcPar) calcPar.textContent = T.numParejas * 2 + ' jugadores · ' + (T.numParejas * 2 * CUOTA_JUGADOR) + '€ recaudados';
+  calcularPremios();
+}
+
+// ══════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════
+let T = {
+  nombre:'', numParejas:16, parejas:[], grupos:[], esSorteo:false,
+  sorteoRondas:[[],[],[]], // Para modo sorteo: array de partidas por ronda
+  clasif:[], clasificados:[],
+  elim:{ cuartos:[], semis:[], final:[], ganador:null },
+  horas:{}
+};
+const LETRAS = ['A','B','C','D','E','F'];
+
+// ══════════════════════════════════════════════
+// CONFIGURACIÓN POR NÚMERO DE PAREJAS
+// ══════════════════════════════════════════════
+function getConfig(n) {
+  // esSorteo: sin grupos, clasifican 8 mejores
+  // grupos: array de tamaños
+  // nClasif: total clasificados
+  // reglaClas: descripción
+  const cfg = {
+    8:  { esSorteo:false, grupos:[4,4],       nClasif:4,  reglaClas:'2 primeros de cada grupo' },
+    10: { esSorteo:true,  grupos:null,         nClasif:8,  reglaClas:'8 mejores (patrón automático)' },
+    12: { esSorteo:false, grupos:[4,4,4],     nClasif:8,  reglaClas:'2 primeros de cada grupo + 2 mejores 3ºs' },
+    14: { esSorteo:true,  grupos:null,         nClasif:8,  reglaClas:'8 mejores (patrón automático)' },
+    16: { esSorteo:false, grupos:[4,4,4,4],   nClasif:8,  reglaClas:'2 primeros de cada grupo' },
+    18: { esSorteo:true,  grupos:null,         nClasif:8,  reglaClas:'8 mejores (patrón automático)' },
+    20: { esSorteo:false, grupos:[4,4,4,4,4], nClasif:8,  reglaClas:'1º de cada grupo + 3 mejores 2ºs' },
+    22: { esSorteo:true,  grupos:null,         nClasif:8,  reglaClas:'8 mejores (patrón automático)' },
+    24: { esSorteo:false, grupos:[4,4,4,4,4,4], nClasif:8, reglaClas:'1º de cada grupo + 2 mejores 2ºs' },
+  };
+  return cfg[n] || cfg[16];
+}
+
+// ══════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════
+function showTab(id, el) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+// GENERAR INPUTS PAREJAS
+// ══════════════════════════════════════════════
+function generarParejas() {
+  const n = parseInt(document.getElementById('num-parejas').value);
+  const cfg = getConfig(n);
+  let html = '';
+  if (cfg.esSorteo) {
+    html = `<div class="msg info">Formato sorteo manual — ${cfg.reglaClas}</div>
+    <table class="pairs-table">
+      <thead><tr><th>#</th><th>Nombre de la Pareja</th></tr></thead><tbody>`;
+    for (let i=1;i<=n;i++) {
+      html += `<tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--muted);width:40px">${i}</td>
+        <td><input type="text" id="pareja-${i}" placeholder="Pareja ${i}"></td></tr>`;
+    }
+    html += '</tbody></table>';
+  } else {
+    cfg.grupos.forEach((tam, gi) => {
+      const start = cfg.grupos.slice(0,gi).reduce((a,b)=>a+b,0)+1;
+      html += `<div style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div class="group-badge">${LETRAS[gi]}</div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">GRUPO ${LETRAS[gi]} · ${tam} PAREJAS</span>
+        </div>
+        <table class="pairs-table"><thead><tr><th>#</th><th>Nombre de la Pareja</th></tr></thead><tbody>`;
+      for (let i=0;i<tam;i++) {
+        const idx = start+i;
+        html += `<tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--muted);width:40px">${idx}</td>
+          <td><input type="text" id="pareja-${idx}" placeholder="Pareja ${idx}"></td></tr>`;
+      }
+      html += '</tbody></table></div>';
+    });
+  }
+  document.getElementById('parejas-container').innerHTML = html;
+}
+window.onload = () => {
+  // Aplicar modo guardado
+  const modoGuardado = localStorage.getItem('mus_modo');
+  if (modoGuardado === 'claro') {
+    document.body.classList.add('modo-claro');
+    const btn = document.getElementById('btn-modo');
+    if (btn) btn.textContent = '🌙';
+  }
+  generarParejas();
+  cargarHorasPreferencia();
+
+  // Guardar al cerrar y avisar si hay resultados pendientes
+  window.addEventListener('beforeunload', (e) => {
+    guardarEstado();
+    // Detectar si hay resultados introducidos pero no guardados
+    // (score inputs con valor pero sin saved)
+    const inputsConValor = document.querySelectorAll('.score-input');
+    let hayPendiente = false;
+    inputsConValor.forEach(input => {
+      if (input.value !== '' && input.value !== '0') {
+        // Comprobar si el resultado ya está guardado mirando si hay result-saved en el mismo partida-row
+        const row = input.closest('.partida-row');
+        if (row && !row.querySelector('.result-saved')) {
+          hayPendiente = true;
+        }
+      }
+    });
+    if (hayPendiente) {
+      e.preventDefault();
+      e.returnValue = 'Hay resultados introducidos sin guardar. ¿Salir igualmente?';
+      return e.returnValue;
+    }
+  });
+
+  // Guardar al escribir nombres de parejas
+  document.getElementById('parejas-container').addEventListener('input', () => guardarEstado());
+  document.getElementById('nombre-torneo').addEventListener('input', () => {
+    // NO guardar en cada tecla — esperar confirmación del nombre
+    // Buscar torneo guardado con ese nombre
+    clearTimeout(window._buscarTimer);
+    window._buscarTimer = setTimeout(() => {
+      const nombre = document.getElementById('nombre-torneo').value.trim();
+      if (!nombre || T.parejas.length > 0) return;
+      try {
+        const raw = localStorage.getItem(LS_ESTADO);
+        if (!raw) return;
+        const estado = JSON.parse(raw);
+        // Buscar por nombre exacto O por nombre del setup
+        const matchTorneo = estado?.T?.nombre === nombre;
+        const matchSetup = estado?.setup?.nombre === nombre;
+        if (!matchTorneo && !matchSetup) return;
+        if (!estado.T?.parejas?.length && !estado.setup?.parejas?.length) return;
+        const existing = document.getElementById('recover-banner');
+        if (existing) existing.remove();
+        const banner = document.createElement('div');
+        banner.id = 'recover-banner';
+        banner.className = 'msg info';
+        banner.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:999;max-width:360px;cursor:pointer;border:1px solid var(--gold)';
+        banner.innerHTML = `🔄 Torneo "<strong>${estado.T.nombre}</strong>" (${estado.T.numParejas} parejas) guardado. <u>Pulsa para recuperar</u>`;
+        banner.onclick = () => {
+          if (estado.T && estado.T.parejas && estado.T.parejas.length > 0) {
+            T = estado.T;
+            // Rellenar también el formulario
+            const sel = document.getElementById('num-parejas');
+            if (sel) { sel.value = T.numParejas; generarParejas(); }
+            const nomEl = document.getElementById('nombre-torneo');
+            if (nomEl) nomEl.value = T.nombre || '';
+            requestAnimationFrame(() => {
+              T.parejas.forEach((p, i) => {
+                const el = document.getElementById('pareja-' + (i+1));
+                if (el) el.value = p.nombre || '';
+              });
+            });
+            document.getElementById('header-sub').textContent = `${T.nombre} · ${T.numParejas} Parejas · Recuperado`;
+            document.getElementById('grupos-titulo').textContent = T.esSorteo ? 'Fase de Grupos Automático' : 'Fase de Grupos';
+            renderFaseGrupos();
+            showTab('grupos', document.querySelectorAll('.tab')[1]);
+          } else if (estado.setup) {
+            // Solo había setup sin iniciar
+            const s = estado.setup;
+            const sel = document.getElementById('num-parejas');
+            if (sel) { sel.value = s.n; generarParejas(); }
+            const nomEl = document.getElementById('nombre-torneo');
+            if (nomEl && s.nombre) nomEl.value = s.nombre;
+            requestAnimationFrame(() => {
+              s.parejas.forEach((nombre, i) => {
+                const el = document.getElementById('pareja-' + (i+1));
+                if (el && nombre) el.value = nombre;
+              });
+            });
+          }
+          banner.remove();
+        };
+        document.body.appendChild(banner);
+        setTimeout(() => { if(banner.parentNode) banner.remove(); }, 10000);
+      } catch(e) {}
+    }, 600);
+  });
+
+  limpiarIndice();
+  actualizarDatalist();
+  renderTorneosPanel();
+  actualizarBadgeTorneoActivo();
+
+  // Recuperar estado al abrir
+  const resultado = cargarEstado();
+  if (resultado === 'torneo') {
+    document.getElementById('header-sub').textContent = `${T.nombre} · ${T.numParejas} Parejas · Recuperado`;
+    document.getElementById('grupos-titulo').textContent = T.esSorteo ? 'Fase Libre' : 'Fase de Grupos';
+    document.title = `${T.nombre} · Gestor Torneo de Mus`;
+    actualizarBadgeTorneoActivo();
+    renderFaseGrupos();
+    showTab('grupos', document.querySelectorAll('.tab')[1]);
+    const b = document.createElement('div');
+    b.className = 'msg success';
+    b.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:999;max-width:320px';
+    b.innerHTML = `✓ Torneo "<strong>${T.nombre}</strong>" recuperado`;
+    document.body.appendChild(b);
+    setTimeout(()=>b.remove(), 4000);
+  }
+};
+
+
+// ══════════════════════════════════════════════
+// INICIAR TORNEO
+// ══════════════════════════════════════════════
+function iniciarTorneo() {
+  // Avisar si hay torneo activo
+  if (T.parejas && T.parejas.length > 0) {
+    if (!confirm(`Hay un torneo activo: "${T.nombre}". ¿Iniciar uno nuevo? Se perderán los datos del torneo actual.`)) return;
+  }
+  const n = parseInt(document.getElementById('num-parejas').value);
+  // Validar nombres duplicados
+  const nombres = [];
+  for (let i=1;i<=n;i++) {
+    const el = document.getElementById('pareja-'+i);
+    const nombre = (el ? el.value : '').trim();
+    if (nombre) nombres.push(nombre.toLowerCase());
+  }
+  const duplicados = nombres.filter((n2,i) => nombres.indexOf(n2) !== i);
+  if (duplicados.length > 0) {
+    const unicos = [...new Set(duplicados)];
+    if (!confirm(`⚠ Hay nombres duplicados: "${unicos.join('", "')}". ¿Continuar igualmente?`)) return;
+  }
+  const cfg = getConfig(n);
+  T.nombre = document.getElementById('nombre-torneo').value || 'Torneo de Mus';
+  T.numParejas = n;
+  T.esSorteo = cfg.esSorteo;
+  guardarHorasPreferencia();
+  T.horas = {
+    r1:document.getElementById('hora-r1').value,
+    r2:document.getElementById('hora-r2').value,
+    r3:document.getElementById('hora-r3').value,
+    cuartos:document.getElementById('hora-cuartos').value,
+    semis:document.getElementById('hora-semis').value,
+    final:document.getElementById('hora-final').value
+  };
+  T.parejas = [];
+  T.grupos = [];
+  T.sorteoRondas = [[],[],[]];
+  T.clasif = [];
+  T.clasificados = [];
+  T.elim = {cuartos:[],semis:[],final:[],ganador:null};
+
+  for (let i=1;i<=n;i++) {
+    const nombre = document.getElementById('pareja-'+i)?.value || 'Pareja '+i;
+    T.parejas.push({id:i, nombre, grupo: cfg.esSorteo ? null : null});
+  }
+
+  if (!cfg.esSorteo) {
+    let pIdx = 0;
+    cfg.grupos.forEach((tam, gi) => {
+      const letra = LETRAS[gi];
+      const ids = [];
+      for (let i=0;i<tam;i++) {
+        T.parejas[pIdx].grupo = letra;
+        ids.push(T.parejas[pIdx].id);
+        pIdx++;
+      }
+      const rondas = generarRondasGrupo(ids, tam);
+      T.grupos.push({letra, parejas:ids, rondas});
+    });
+  } else {
+    // Generar enfrentamientos automáticos según patrón del PDF
+    T.sorteoRondas = generarRondasSorteo(n, T.parejas);
+  }
+
+  document.getElementById('header-sub').textContent = `${T.nombre} · ${n} Parejas · ${cfg.esSorteo?'Sorteo':cfg.grupos.length+' Grupos'}`;
+  document.getElementById('grupos-titulo').textContent = cfg.esSorteo ? 'Fase Libre' : 'Fase de Grupos';
+  document.title = `${T.nombre} · Gestor Torneo de Mus`;
+  actualizarBadgeTorneoActivo();
+
+  localStorage.removeItem(LS_SETUP); // ya no necesitamos el borrador
+  _nombreConfirmado = true; // el torneo está iniciado, siempre en índice
+  guardarTorneoCursoCompleto();
+  renderFaseGrupos();
+  actualizarGuia();
+  iniciarMonitorRondas();
+  showTab('grupos', document.querySelectorAll('.tab')[1]);
+}
+
+// ══════════════════════════════════════════════
+// ENFRENTAMIENTOS POR GRUPO (grupos de 4)
+// ══════════════════════════════════════════════
+function generarRondasGrupo(ids, tam) {
+  // Patrón: R1: 1x2 3x4 | R2: 1x3 2x4 | R3: 1x4 2x3
+  if (tam===4) return [
+    [{p1:ids[0],p2:ids[1]},{p1:ids[2],p2:ids[3]}],
+    [{p1:ids[0],p2:ids[2]},{p1:ids[1],p2:ids[3]}],
+    [{p1:ids[0],p2:ids[3]},{p1:ids[1],p2:ids[2]}]
+  ];
+  if (tam===3) return [
+    [{p1:ids[0],p2:ids[1]}],
+    [{p1:ids[0],p2:ids[2]}],
+    [{p1:ids[1],p2:ids[2]}]
+  ];
+  return [[],[],[]];
+}
+
+// ══════════════════════════════════════════════
+// ENFRENTAMIENTOS SORTEO (10/14/18/22 parejas)
+// Según patrón del PDF
+// ══════════════════════════════════════════════
+function generarRondasSorteo(n, parejas) {
+  const p = (i) => parejas[i-1] ? parejas[i-1].id : 0;
+
+  if (n === 10) return [
+    [{p1:p(1),p2:p(2)},{p1:p(3),p2:p(4)},{p1:p(5),p2:p(6)},{p1:p(7),p2:p(8)},{p1:p(9),p2:p(10)}],
+    [{p1:p(1),p2:p(4)},{p1:p(3),p2:p(6)},{p1:p(5),p2:p(8)},{p1:p(7),p2:p(10)},{p1:p(9),p2:p(2)}],
+    [{p1:p(1),p2:p(6)},{p1:p(10),p2:p(5)},{p1:p(9),p2:p(4)},{p1:p(8),p2:p(3)},{p1:p(7),p2:p(2)}]
+  ];
+
+  if (n === 14) return [
+    [{p1:p(1),p2:p(2)},{p1:p(3),p2:p(14)},{p1:p(13),p2:p(4)},{p1:p(12),p2:p(5)},{p1:p(11),p2:p(6)},{p1:p(10),p2:p(7)},{p1:p(9),p2:p(8)}],
+    [{p1:p(1),p2:p(3)},{p1:p(2),p2:p(4)},{p1:p(14),p2:p(5)},{p1:p(13),p2:p(6)},{p1:p(12),p2:p(7)},{p1:p(11),p2:p(8)},{p1:p(9),p2:p(10)}],
+    [{p1:p(1),p2:p(4)},{p1:p(3),p2:p(5)},{p1:p(2),p2:p(6)},{p1:p(14),p2:p(7)},{p1:p(13),p2:p(8)},{p1:p(12),p2:p(9)},{p1:p(11),p2:p(10)}]
+  ];
+
+  if (n === 18) return [
+    [{p1:p(1),p2:p(10)},{p1:p(2),p2:p(11)},{p1:p(3),p2:p(12)},{p1:p(4),p2:p(13)},{p1:p(5),p2:p(14)},{p1:p(6),p2:p(15)},{p1:p(7),p2:p(16)},{p1:p(8),p2:p(17)},{p1:p(9),p2:p(18)}],
+    [{p1:p(1),p2:p(2)},{p1:p(3),p2:p(4)},{p1:p(5),p2:p(6)},{p1:p(7),p2:p(8)},{p1:p(9),p2:p(10)},{p1:p(11),p2:p(12)},{p1:p(13),p2:p(14)},{p1:p(15),p2:p(16)},{p1:p(17),p2:p(18)}],
+    [{p1:p(1),p2:p(3)},{p1:p(2),p2:p(4)},{p1:p(5),p2:p(17)},{p1:p(6),p2:p(8)},{p1:p(7),p2:p(18)},{p1:p(9),p2:p(11)},{p1:p(10),p2:p(12)},{p1:p(13),p2:p(15)},{p1:p(14),p2:p(16)}]
+  ];
+
+  if (n === 22) return [
+    [{p1:p(1),p2:p(22)},{p1:p(2),p2:p(21)},{p1:p(3),p2:p(20)},{p1:p(4),p2:p(19)},{p1:p(5),p2:p(18)},{p1:p(6),p2:p(17)},{p1:p(7),p2:p(16)},{p1:p(8),p2:p(15)},{p1:p(9),p2:p(14)},{p1:p(10),p2:p(13)},{p1:p(11),p2:p(12)}],
+    [{p1:p(1),p2:p(21)},{p1:p(22),p2:p(20)},{p1:p(2),p2:p(19)},{p1:p(3),p2:p(18)},{p1:p(4),p2:p(17)},{p1:p(5),p2:p(16)},{p1:p(6),p2:p(15)},{p1:p(7),p2:p(14)},{p1:p(8),p2:p(13)},{p1:p(9),p2:p(12)},{p1:p(10),p2:p(11)}],
+    [{p1:p(1),p2:p(20)},{p1:p(21),p2:p(19)},{p1:p(22),p2:p(18)},{p1:p(2),p2:p(17)},{p1:p(3),p2:p(16)},{p1:p(4),p2:p(15)},{p1:p(5),p2:p(14)},{p1:p(6),p2:p(13)},{p1:p(7),p2:p(12)},{p1:p(8),p2:p(11)},{p1:p(9),p2:p(10)}]
+  ];
+
+  return [[],[],[]];
+}
+
+// ══════════════════════════════════════════════
+// RENDER FASE GRUPOS
+// ══════════════════════════════════════════════
+function editarNombrePareja() {
+  if (!T.parejas || !T.parejas.length) return;
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px';
+  const filas = T.parejas.map((p,i) =>
+    `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);width:24px">${p.id}</span>
+      <input id="edit-pareja-${p.id}" value="${p.nombre.replace(/"/g,'&quot;')}"
+        style="flex:1;background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;padding:6px 10px;outline:none"
+        onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'">
+    </div>`).join('');
+  modal.innerHTML = `<div style="background:var(--card);border:1px solid var(--gold);max-width:480px;width:100%;max-height:80vh;overflow-y:auto;padding:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:2px">EDITAR NOMBRES</div>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer">✕</button>
+    </div>
+    ${filas}
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button onclick="guardarNombresEditados(this)" class="btn-primary" style="font-size:11px">✓ Guardar cambios</button>
+      <button onclick="this.closest('[style*=fixed]').remove()" class="btn-secondary" style="font-size:11px">Cancelar</button>
+    </div>
+  </div>`;
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+function guardarNombresEditados(btn) {
+  T.parejas.forEach(p => {
+    const el = document.getElementById('edit-pareja-'+p.id);
+    if (el && el.value.trim()) p.nombre = el.value.trim();
+  });
+  guardarEstado();
+  btn.closest('[style*=fixed]').remove();
+  renderFaseGrupos();
+}
+
+// ══════════════════════════════════════════════
+// NOTIFICACIÓN DE RONDA
+// ══════════════════════════════════════════════
+let _notifTimer = null;
+let _ultimaNotifRonda = -1;
+
+function iniciarMonitorRondas() {
+  if (_notifTimer) clearInterval(_notifTimer);
+  _notifTimer = setInterval(comprobarHoraRonda, 30000); // cada 30s
+  comprobarHoraRonda(); // comprobar al arrancar
+}
+
+function comprobarHoraRonda() {
+  if (!T.horas || !T.parejas.length) return;
+  const ahora = new Date();
+  const hh = ahora.getHours().toString().padStart(2,'0');
+  const mm = ahora.getMinutes().toString().padStart(2,'0');
+  const horaActual = hh + ':' + mm;
+
+  const rondas = [
+    {label:'RONDA 1', hora: T.horas.r1},
+    {label:'RONDA 2', hora: T.horas.r2},
+    {label:'RONDA 3', hora: T.horas.r3},
+    {label:'CUARTOS DE FINAL', hora: T.horas.cuartos},
+    {label:'SEMIFINALES', hora: T.horas.semis},
+    {label:'FINAL', hora: T.horas.final},
+  ];
+
+  rondas.forEach((r, i) => {
+    if (r.hora && r.hora === horaActual && _ultimaNotifRonda !== i) {
+      _ultimaNotifRonda = i;
+      mostrarNotifRonda(r.label, r.hora);
+    }
+  });
+}
+
+function mostrarNotifRonda(label, hora) {
+  // Quitar notif anterior si existe
+  document.querySelectorAll('.notif-ronda').forEach(el => el.remove());
+  const div = document.createElement('div');
+  div.className = 'notif-ronda';
+  div.innerHTML = `⏰ ${label} · ${hora}`;
+  div.onclick = () => div.remove();
+  document.body.appendChild(div);
+  // Sonido beep usando Web Audio API
+  try {
+    const ctx2 = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 150, 300].forEach(delay => {
+      const osc = ctx2.createOscillator();
+      const gain = ctx2.createGain();
+      osc.connect(gain); gain.connect(ctx2.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.3, ctx2.currentTime + delay/1000);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx2.currentTime + delay/1000 + 0.3);
+      osc.start(ctx2.currentTime + delay/1000);
+      osc.stop(ctx2.currentTime + delay/1000 + 0.3);
+    });
+  } catch(e) {}
+  setTimeout(() => { if(div.parentNode) div.remove(); }, 10000);
+}
+
+function getRondaActual() {
+  let rondaActual = 0;
+  for (let ri=0;ri<3;ri++) {
+    let total=0, guardadas=0;
+    if (T.esSorteo) {
+      total = T.sorteoRondas[ri]?.length || 0;
+      guardadas = T.sorteoRondas[ri]?.filter(p=>p.saved).length || 0;
+    } else {
+      total = T.grupos.reduce((a,g)=>a+g.rondas[ri].length,0);
+      guardadas = T.grupos.reduce((a,g)=>a+g.rondas[ri].filter(p=>p.saved).length,0);
+    }
+    if (total===0 || guardadas < total) { rondaActual = ri; break; }
+    if (ri===2) rondaActual = 3;
+  }
+  return rondaActual;
+}
+
+function renderFaseGrupos() {
+  const rondaActual = getRondaActual();
+  let strip = ['r1','r2','r3'].map((r,i)=>{
+    const esActiva = i===rondaActual;
+    const completada = i<rondaActual;
+    const estilo = esActiva
+      ? 'background:rgba(201,168,76,0.15);border-color:var(--gold)'
+      : completada ? 'opacity:0.5' : '';
+    const icono = completada ? '✓ ' : esActiva ? '▶ ' : '';
+    return `<div class="horario-pill" style="${estilo}"><span>Ronda ${i+1}</span>${icono}${T.horas[r]}</div>`;
+  }).join('');
+  if (rondaActual===3) strip += `<div class="horario-pill" style="background:rgba(39,174,96,0.15);border-color:var(--green)"><span>Estado</span>✓ Grupos completos</div>`;
+  document.getElementById('horario-strip').innerHTML = strip;
+
+  if (T.esSorteo) renderSorteo();
+  else renderGrupos();
+  setTimeout(renderProgresoBotones, 50);
+}
+
+// ══════════════════════════════════════════════
+// REORDENAR CLASIFICACIÓN MANUAL (SORTEO DESEMPATE)
+// ══════════════════════════════════════════════
+function reordenarGrupo(input, idx, letra) {
+  const newPos = parseInt(input.value);
+  if (isNaN(newPos)) return;
+  const miembros = T.clasif.filter(s=>s.grupo===letra);
+  if (newPos < 1 || newPos > miembros.length) { input.value = miembros[idx].posGrupo; return; }
+  // Intercambiar posiciones
+  const target = miembros.find(s=>s.posGrupo===newPos);
+  const current = miembros[idx];
+  if (target) { target.posGrupo = current.posGrupo; }
+  current.posGrupo = newPos;
+  // Reordenar T.clasif dentro del grupo
+  const otrosMiembros = T.clasif.filter(s=>s.grupo!==letra);
+  const miembrosOrden = miembros.slice().sort((a,b)=>a.posGrupo-b.posGrupo);
+  T.clasif = [...otrosMiembros, ...miembrosOrden];
+  // Recalcular clasificados
+  const cfg = getConfig(T.numParejas);
+  clasificarSegunRegla(
+    Object.fromEntries(T.grupos.map(g=>[g.letra, T.clasif.filter(s=>s.grupo===g.letra)])),
+    cfg, (a,b)=>a.posGrupo-b.posGrupo
+  );
+  T.clasificados = T.clasif.filter(s=>s.clasif).sort((a,b)=>a.posGrupo-b.posGrupo||a.grupo.localeCompare(b.grupo));
+  renderClasificacion();
+  renderClasifGlobal();
+}
+
+function verResultadosPareja(id) {
+  const pareja = T.parejas.find(p=>p.id===id);
+  if (!pareja) return;
+  const partidas = [];
+  const addPartida = (p, ri, grupoLetra) => {
+    if (!p.saved) return;
+    const esP1=p.p1===id, esP2=p.p2===id;
+    if (!esP1&&!esP2) return;
+    const rival=esP1?getNombre(p.p2):getNombre(p.p1);
+    const chProp=esP1?p.g1:p.g2, chRival=esP1?p.g2:p.g1;
+    partidas.push({ronda:`${grupoLetra||''}R${ri+1}`,rival,chProp,chRival,gano:chProp>chRival});
+  };
+  if (T.esSorteo) {
+    T.sorteoRondas.forEach((r,ri)=>r.forEach(p=>addPartida(p,ri,'')));
+  } else {
+    T.grupos.forEach(g=>g.rondas.forEach((r,ri)=>r.forEach(p=>addPartida(p,ri,g.letra+' '))));
+  }
+  [...T.elim.cuartos,...T.elim.semis,...T.elim.final].forEach((p,i)=>{
+    if(!p||!p.saved) return;
+    const esP1=p.p1?.id===id, esP2=p.p2?.id===id;
+    if(!esP1&&!esP2) return;
+    const rival=esP1?p.p2?.nombre:p.p1?.nombre;
+    const chProp=esP1?p.g1:p.g2, chRival=esP1?p.g2:p.g1;
+    const fase=i<T.elim.cuartos.length?'Cuartos':i<T.elim.cuartos.length+T.elim.semis.length?'Semis':'Final';
+    partidas.push({ronda:fase,rival,chProp,chRival,gano:chProp>chRival});
+  });
+  if(partidas.length===0){alert(pareja.nombre+' — Sin partidas registradas.');return;}
+  const pg=partidas.filter(p=>p.gano).length;
+  const ch=partidas.reduce((a,p)=>a+p.chProp,0);
+  const cp=partidas.reduce((a,p)=>a+p.chRival,0);
+  const filas=partidas.map(p=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">${p.ronda}</td>
+    <td style="padding:8px 12px;font-size:13px">${p.rival}</td>
+    <td style="padding:8px 12px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:${p.gano?'var(--green)':'var(--red)'}">${p.chProp}–${p.chRival}</td>
+    <td style="padding:8px 12px;text-align:center;font-size:11px;color:${p.gano?'var(--green)':'var(--red)'}">${p.gano?'✓':'✗'}</td>
+  </tr>`).join('');
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML=`<div style="background:var(--card);border:1px solid var(--gold);max-width:560px;width:100%;max-height:80vh;overflow-y:auto;padding:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:2px">${pareja.nombre}</div>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">PG: <strong style="color:var(--text)">${pg}/${partidas.length}</strong></div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">CH: <strong style="color:var(--text)">${ch}</strong></div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">Dif: <strong style="color:${ch-cp>=0?'var(--green)':'var(--red)'}">${ch-cp>=0?'+':''}${ch-cp}</strong></div>
+    </div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="border-bottom:1px solid var(--border)">
+        <th style="padding:6px 12px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-align:left">Ronda</th>
+        <th style="padding:6px 12px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-align:left">Rival</th>
+        <th style="padding:6px 12px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-align:center">Resultado</th>
+        <th style="padding:6px 12px;text-align:center"></th>
+      </tr></thead>
+      <tbody>${filas}</tbody>
+    </table>
+  </div>`;
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+  document.body.appendChild(modal);
+}
+
+function reordenarSorteo(input, idx) {
+  const newPos = parseInt(input.value);
+  if (isNaN(newPos) || newPos < 1 || newPos > T.clasif.length) { input.value = idx+1; return; }
+  const current = T.clasif[idx];
+  const target = T.clasif[newPos-1];
+  if (target) {
+    T.clasif[newPos-1] = current;
+    T.clasif[idx] = target;
+  }
+  T.clasif.forEach((s,i)=>{ s.posGrupo=i+1; s.clasif=i<getConfig(T.numParejas).nClasif; });
+  T.clasificados = T.clasif.filter(s=>s.clasif);
+  renderClasificacion();
+  renderClasifGlobal();
+}
+
+function renderClasifGlobal() {
+  const cfg = getConfig(T.numParejas);
+  document.getElementById('msg-clasif').innerHTML =
+    `<div class="msg info">Se clasifican ${T.clasificados.length} parejas · ${cfg.reglaClas} · Desempate: 1/PG · 2/Dif.CH · ${T.esSorteo ? '3/CH · 4/Sorteo' : '3/Particular · 4/CH · 5/Sorteo'}</div>`;
+  let html='';
+  T.clasificados.forEach((s,i)=>{
+    html+=`<tr class="clasificado">
+      <td><span class="pos-badge ${i<2?'gold':''}">${i+1}</span></td>
+      <td>${s.nombre}</td><td>${s.grupo}</td><td>${s.PG}</td><td>${s.CH}</td><td>${s.DIF>0?'+':''}${s.DIF}</td>
+    </tr>`;
+  });
+  document.getElementById('body-clasificados').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+// PROGRESO DE RONDAS
+// ══════════════════════════════════════════════
+function calcularProgreso() {
+  if (T.esSorteo) {
+    const total = T.sorteoRondas.reduce((a,r)=>a+r.length,0);
+    const saved = T.sorteoRondas.reduce((a,r)=>a+r.filter(p=>p.saved).length,0);
+    return {total, saved, texto: total>0?`${saved}/${total} partidas`:''};
+  }
+  const total = T.grupos.reduce((a,g)=>a+g.rondas.reduce((b,r)=>b+r.length,0),0);
+  const saved = T.grupos.reduce((a,g)=>a+g.rondas.reduce((b,r)=>b+r.filter(p=>p.saved).length,0),0);
+  return {total, saved, texto:`${saved}/${total} partidas`};
+}
+
+function renderProgresoBotones() {
+  const prog = calcularProgreso();
+  const pct = prog.total>0 ? Math.round((prog.saved/prog.total)*100) : 0;
+  const color = pct===100?'var(--green)':pct>50?'var(--gold)':'var(--muted)';
+  const el = document.getElementById('progreso-rondas');
+  if (el) el.innerHTML = `<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:${color}">${prog.texto} completadas (${pct}%)</span>`;
+}
+
+// ══════════════════════════════════════════════
+// MODO GRUPOS
+// ══════════════════════════════════════════════
+function renderGrupos() {
+  let html = '<div class="grupos-container">';
+  T.grupos.forEach((grupo, gi) => {
+    html += `<div class="grupo-card">
+      <div class="grupo-header"><div class="grupo-letra">${grupo.letra}</div>
+      <div class="grupo-info">${grupo.parejas.length} PAREJAS</div>
+      <button onclick="editarNombrePareja()" style="margin-left:auto;background:transparent;border:none;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px" title="Editar nombres">✎ Editar</button></div>
+      <div class="ronda-tabs" id="rtabs-${gi}">
+        ${[0,1,2].map(ri=>`<div class="ronda-tab ${ri===0?'active':''}" onclick="showRondaGrupo(${gi},${ri},this)">R${ri+1} · ${T.horas['r'+(ri+1)]}</div>`).join('')}
+      </div>
+      ${[0,1,2].map(ri=>renderRondaGrupoHTML(gi,ri)).join('')}
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('grupos-container').innerHTML = html;
+  T.grupos.forEach((_,gi)=>[0,1,2].forEach(ri=>{
+    const el=document.getElementById(`ronda-${gi}-${ri}`);
+    if(el) el.style.display=ri===0?'block':'none';
+  }));
+}
+
+function showRondaGrupo(gi, ri, el) {
+  document.querySelectorAll(`#rtabs-${gi} .ronda-tab`).forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  [0,1,2].forEach(r=>{
+    const d=document.getElementById(`ronda-${gi}-${r}`);
+    if(d) d.style.display=r===ri?'block':'none';
+  });
+}
+
+function renderRondaGrupoHTML(gi, ri) {
+  const partidas = T.grupos[gi].rondas[ri];
+  let html = `<div id="ronda-${gi}-${ri}">`;
+  partidas.forEach((p,pi)=>{
+    const n1=getNombre(p.p1), n2=getNombre(p.p2);
+    const v1=p.saved?p.g1:'', v2=p.saved?p.g2:'';
+    const saved=p.saved?`<span class="result-saved">✓ ${p.g1}–${p.g2}</span>`:'';
+    html+=`<div class="partida-row">
+      <span class="pareja-name" title="${n1}">${n1}</span>
+      <span class="vs-label">VS</span>
+      <div class="score-wrap">
+        <button class="score-btn" onclick="stepScore('g-${gi}-${ri}-${pi}-1',-1)">−</button>
+        <input class="score-input" type="number" min="0" max="5" id="g-${gi}-${ri}-${pi}-1" value="${v1}" placeholder="0" onkeydown="if(event.key==='Enter')guardarGrupo(${gi},${ri},${pi})">
+        <button class="score-btn" onclick="stepScore('g-${gi}-${ri}-${pi}-1',1)">+</button>
+      </div>
+      <span style="color:var(--muted)">—</span>
+      <div class="score-wrap">
+        <button class="score-btn" onclick="stepScore('g-${gi}-${ri}-${pi}-2',-1)">−</button>
+        <input class="score-input" type="number" min="0" max="5" id="g-${gi}-${ri}-${pi}-2" value="${v2}" placeholder="0" onkeydown="if(event.key==='Enter')guardarGrupo(${gi},${ri},${pi})">
+        <button class="score-btn" onclick="stepScore('g-${gi}-${ri}-${pi}-2',1)">+</button>
+      </div>
+      <span class="vs-label">VS</span>
+      <span class="pareja-name" title="${n2}" style="text-align:right">${n2}</span>
+      <button class="btn-save-result" onclick="guardarGrupo(${gi},${ri},${pi})">OK</button>
+      ${saved}
+    </div>`;
+  });
+  html+='</div>';
+  return html;
+}
+
+function guardarGrupo(gi, ri, pi) {
+  const g1=parseInt(document.getElementById(`g-${gi}-${ri}-${pi}-1`).value);
+  const g2=parseInt(document.getElementById(`g-${gi}-${ri}-${pi}-2`).value);
+  if(!validarChicos(g1,g2,'grupo')) return;
+  T.grupos[gi].rondas[ri][pi] = {...T.grupos[gi].rondas[ri][pi], g1, g2, saved:true};
+  guardarTorneoCursoCompleto();
+  renderProgresoBotones();
+  renderGrupos();
+  // Flash visual en el botón OK
+  setTimeout(() => {
+    const btn = document.querySelector(`[onclick="guardarGrupo(${gi},${ri},${pi})"]`);
+    if (btn) { btn.textContent='✓'; btn.style.background='var(--green)';
+      setTimeout(()=>{ btn.textContent='OK'; btn.style.background=''; }, 1000); }
+  }, 50);
+  // Restaurar ronda activa
+  const tabs=document.querySelectorAll(`#rtabs-${gi} .ronda-tab`);
+  if(tabs[ri]) tabs[ri].classList.add('active');
+  [0,1,2].forEach(r=>{
+    const d=document.getElementById(`ronda-${gi}-${r}`);
+    if(d) d.style.display=r===ri?'block':'none';
+  });
+}
+
+// ══════════════════════════════════════════════
+// MODO SORTEO MANUAL
+// ══════════════════════════════════════════════
+function renderSorteo() {
+  let html = '<div class="grupo-card" style="max-width:700px">';
+  html += `<div class="grupo-header"><div class="grupo-letra">F</div>
+    <div class="grupo-info">FASE LIBRE · 3 RONDAS · ${T.numParejas} PAREJAS</div>
+    <button onclick="editarNombrePareja()" style="margin-left:auto;background:transparent;border:none;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px" title="Editar nombres">✎ Editar nombres</button></div>`;
+  html += `<div class="ronda-tabs" id="sorteo-rtabs">
+    ${[0,1,2].map(ri=>`<div class="ronda-tab ${ri===0?'active':''}" onclick="showRondaSorteo(${ri},this)">R${ri+1} · ${T.horas['r'+(ri+1)]}</div>`).join('')}
+  </div>`;
+  [0,1,2].forEach(ri=>{
+    html+=`<div id="sorteo-ronda-${ri}" style="display:${ri===0?'block':'none'}">`;
+    T.sorteoRondas[ri].forEach((p,pi)=>{
+      html+=renderSorteoPartida(ri,pi,p);
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  document.getElementById('grupos-container').innerHTML = html;
+}
+
+function renderSorteoPartida(ri, pi, p) {
+  const n1 = p && p.p1 ? getNombre(p.p1) : '— Sin asignar';
+  const n2 = p && p.p2 ? getNombre(p.p2) : '— Sin asignar';
+  const v1 = p&&p.saved ? p.g1 : '';
+  const v2 = p&&p.saved ? p.g2 : '';
+  const saved = p&&p.saved ? `<span class="result-saved">✓ ${p.g1}–${p.g2}</span>` : '';
+  return `<div class="partida-row">
+    <span class="pareja-name" title="${n1}">${n1}</span>
+    <span class="vs-label">VS</span>
+    <div class="score-wrap">
+      <button class="score-btn" onclick="stepScore('ss-${ri}-${pi}-1',-1)">−</button>
+      <input class="score-input" type="number" min="0" max="5" id="ss-${ri}-${pi}-1" value="${v1}" placeholder="0" onkeydown="if(event.key==='Enter')guardarSorteo(${ri},${pi})">
+      <button class="score-btn" onclick="stepScore('ss-${ri}-${pi}-1',1)">+</button>
+    </div>
+    <span style="color:var(--muted)">—</span>
+    <div class="score-wrap">
+      <button class="score-btn" onclick="stepScore('ss-${ri}-${pi}-2',-1)">−</button>
+      <input class="score-input" type="number" min="0" max="5" id="ss-${ri}-${pi}-2" value="${v2}" placeholder="0" onkeydown="if(event.key==='Enter')guardarSorteo(${ri},${pi})">
+      <button class="score-btn" onclick="stepScore('ss-${ri}-${pi}-2',1)">+</button>
+    </div>
+    <span class="vs-label">VS</span>
+    <span class="pareja-name" title="${n2}" style="text-align:right">${n2}</span>
+    <button class="btn-save-result" onclick="guardarSorteo(${ri},${pi})">OK</button>
+    ${saved}
+  </div>`;
+}
+
+function addSorteoPartida(ri) {
+  T.sorteoRondas[ri].push({p1:null,p2:null,g1:null,g2:null,saved:false});
+  guardarTorneoCursoCompleto();
+  renderSorteo();
+  showRondaSorteoById(ri);
+}
+
+function eliminarSorteoPartida(ri, pi) {
+  if (T.sorteoRondas[ri][pi].saved) {
+    if (!confirm('Esta partida ya tiene resultado guardado. ¿Eliminarla igualmente?')) return;
+  }
+  T.sorteoRondas[ri].splice(pi, 1);
+  guardarTorneoCursoCompleto();
+  renderProgresoBotones();
+  renderSorteo();
+  showRondaSorteoById(ri);
+}
+
+
+
+function guardarSorteo(ri, pi) {
+  const g1=parseInt(document.getElementById(`ss-${ri}-${pi}-1`).value);
+  const g2=parseInt(document.getElementById(`ss-${ri}-${pi}-2`).value);
+  if(!validarChicos(g1,g2,'sorteo')) return;
+  // Mantener p1/p2 del patrón — solo actualizar resultado
+  T.sorteoRondas[ri][pi].g1 = g1;
+  T.sorteoRondas[ri][pi].g2 = g2;
+  T.sorteoRondas[ri][pi].saved = true;
+  guardarTorneoCursoCompleto();
+  renderProgresoBotones();
+  renderSorteo();
+  showRondaSorteoById(ri);
+  setTimeout(() => {
+    const btn = document.querySelector(`[onclick="guardarSorteo(${ri},${pi})"]`);
+    if (btn) { btn.textContent='✓'; btn.style.background='var(--green)';
+      setTimeout(()=>{ btn.textContent='OK'; btn.style.background=''; }, 1000); }
+  }, 50);
+}
+
+function showRondaSorteo(ri, el) {
+  document.querySelectorAll('#sorteo-rtabs .ronda-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  [0,1,2].forEach(r=>{
+    const d=document.getElementById(`sorteo-ronda-${r}`);
+    if(d) d.style.display=r===ri?'block':'none';
+  });
+}
+
+function showRondaSorteoById(ri) {
+  [0,1,2].forEach(r=>{
+    const d=document.getElementById(`sorteo-ronda-${r}`);
+    if(d) d.style.display=r===ri?'block':'none';
+  });
+  const tabs=document.querySelectorAll('#sorteo-rtabs .ronda-tab');
+  tabs.forEach((t,i)=>t.classList.toggle('active',i===ri));
+}
+
+// ══════════════════════════════════════════════
+// CALCULAR CLASIFICACIÓN
+// ══════════════════════════════════════════════
+function calcularClasificacion() {
+  // Comprobar partidas sin jugar
+  let sinJugar = 0;
+  if (T.esSorteo) {
+    sinJugar = T.sorteoRondas.flat().filter(p=>!p.saved).length;
+  } else {
+    sinJugar = T.grupos.reduce((a,g)=>a+g.rondas.flat().filter(p=>!p.saved).length,0);
+  }
+  if (sinJugar > 0) {
+    if (!confirm(`Hay ${sinJugar} partida(s) sin resultado. La clasificación puede ser incompleta. ¿Calcular igualmente?`)) return;
+  }
+  const stats = {};
+  T.parejas.forEach(p=>{
+    stats[p.id]={id:p.id,nombre:p.nombre,grupo:p.grupo||'—',PG:0,CH:0,CP:0,DIF:0,posGrupo:0,clasif:false};
+  });
+
+  const procesarPartida = (p1id, p2id, g1, g2) => {
+    const s1=stats[p1id], s2=stats[p2id];
+    if(!s1||!s2) return;
+    if(g1>g2) s1.PG++; else if(g2>g1) s2.PG++;
+    s1.CH+=g1; s2.CH+=g2;
+    s1.CP+=g2; s2.CP+=g1;
+  };
+
+  if (T.esSorteo) {
+    T.sorteoRondas.forEach(ronda=>ronda.forEach(p=>{
+      if(p.saved) procesarPartida(p.p1,p.p2,p.g1,p.g2);
+    }));
+  } else {
+    T.grupos.forEach(grupo=>grupo.rondas.forEach(ronda=>ronda.forEach(p=>{
+      if(p.saved) procesarPartida(p.p1,p.p2,p.g1,p.g2);
+    })));
+  }
+
+  Object.values(stats).forEach(s=>s.DIF=s.CH-s.CP);
+
+  // Ordenar
+  const cmp = cmpCompleto;
+
+  const cfg = getConfig(T.numParejas);
+  T.clasif = [];
+
+  if (T.esSorteo) {
+    // Avisar si hay parejas que no han jugado ninguna partida
+    const sinPartidas = T.parejas.filter(p=>{
+      const jugadas = T.sorteoRondas.flat().filter(r=>r.saved&&(r.p1===p.id||r.p2===p.id));
+      return jugadas.length===0;
+    });
+    if (sinPartidas.length>0) {
+      const nombres = sinPartidas.map(p=>p.nombre).join(', ');
+      if (!confirm(`Aviso: ${sinPartidas.length} pareja(s) no han jugado ninguna partida: ${nombres}. ¿Calcular igualmente?`)) return;
+    }
+    const todos = Object.values(stats).sort(cmp);
+    todos.forEach((s,i)=>{s.posGrupo=i+1; s.clasif=i<cfg.nClasif;});
+    T.clasif = todos;
+  } else {
+    // Calcular posición dentro de cada grupo
+    const porGrupo = {};
+    T.grupos.forEach(g=>{
+      const miembros = g.parejas.map(id=>stats[id]).sort(cmp);
+      miembros.forEach((s,i)=>{ s.posGrupo=i+1; });
+      porGrupo[g.letra] = miembros;
+      T.clasif.push(...miembros);
+    });
+
+    // Aplicar regla de clasificación según número de parejas
+    clasificarSegunRegla(porGrupo, cfg, cmp);
+  }
+
+  T.clasificados = T.clasif.filter(s=>s.clasif).sort(cmp);
+  renderClasificacion();
+  showTab('clasif', document.querySelectorAll('.tab')[2]);
+}
+
+function clasificarSegunRegla(porGrupo, cfg, cmp) {
+  const n = T.numParejas;
+  const primeros = Object.values(porGrupo).map(g=>g[0]);
+  const segundos = Object.values(porGrupo).map(g=>g[1]).filter(Boolean);
+  const terceros = Object.values(porGrupo).map(g=>g[2]).filter(Boolean);
+
+  if (n===8) {
+    // 2 grupos: 2 primeros → 4 clasificados
+    primeros.forEach(s=>s.clasif=true);
+    segundos.forEach(s=>s.clasif=true);
+  } else if (n===12) {
+    // 3 grupos: 2x3 + 2 mejores 3ºs → 8
+    primeros.forEach(s=>s.clasif=true);
+    segundos.forEach(s=>s.clasif=true);
+    const mejores3 = terceros.sort(cmp).slice(0,2);
+    mejores3.forEach(s=>s.clasif=true);
+  } else if (n===16) {
+    // 4 grupos: 2 por grupo → 8
+    primeros.forEach(s=>s.clasif=true);
+    segundos.forEach(s=>s.clasif=true);
+  } else if (n===20) {
+    // 5 grupos: 1º de cada + 3 mejores 2ºs → 8
+    primeros.forEach(s=>s.clasif=true);
+    const mejores2 = segundos.sort(cmp).slice(0,3);
+    mejores2.forEach(s=>s.clasif=true);
+  } else if (n===24) {
+    // 6 grupos: 1º de cada + 2 mejores 2ºs → 8
+    primeros.forEach(s=>s.clasif=true);
+    const mejores2 = segundos.sort(cmp).slice(0,2);
+    mejores2.forEach(s=>s.clasif=true);
+  }
+}
+
+// ══════════════════════════════════════════════
+// RENDER CLASIFICACIÓN
+// ══════════════════════════════════════════════
+function hayEmpateConSorteo(lista) {
+  for (let i=1;i<lista.length;i++) {
+    if (esEmpate(lista[i-1],lista[i])) return true;
+  }
+  return false;
+}
+
+function esEmpate(a, b) {
+  return a.PG===b.PG && a.DIF===b.DIF && a.CH===b.CH;
+}
+
+// Resultado del enfrentamiento directo entre a y b
+function resultadoParticular(a, b) {
+  // Buscar partida directa en grupos o sorteoRondas
+  const buscarEnPartidas = (partidas) => {
+    for (const p of partidas) {
+      if (!p.saved) continue;
+      if (p.p1===a.id && p.p2===b.id) return {ganador: p.g1>p.g2?a.id:b.id, g_a:p.g1, g_b:p.g2};
+      if (p.p1===b.id && p.p2===a.id) return {ganador: p.g1>p.g2?b.id:a.id, g_a:p.g2, g_b:p.g1};
+    }
+    return null;
+  };
+  // Buscar en grupos
+  for (const grupo of T.grupos) {
+    for (const ronda of grupo.rondas) {
+      const res = buscarEnPartidas(ronda);
+      if (res) return res;
+    }
+  }
+  // Buscar en sorteoRondas
+  for (const ronda of T.sorteoRondas) {
+    const res = buscarEnPartidas(ronda);
+    if (res) return res;
+  }
+  return null;
+}
+
+// Comparador completo con criterio particular
+function cmpCompleto(a, b) {
+  if (b.PG !== a.PG) return b.PG - a.PG;
+  if (b.DIF !== a.DIF) return b.DIF - a.DIF;
+  if (T.esSorteo) {
+    // SIN GRUPOS: PG → Dif.CH → CH → Sorteo
+    if (b.CH !== a.CH) return b.CH - a.CH;
+    return 0; // sorteo
+  } else {
+    // CON GRUPOS: PG → Dif.CH → Particular → CH → Sorteo
+    const particular = resultadoParticular(a, b);
+    if (particular) {
+      if (particular.ganador === a.id) return -1;
+      if (particular.ganador === b.id) return 1;
+    }
+    if (b.CH !== a.CH) return b.CH - a.CH;
+    return 0; // sorteo
+  }
+}
+
+function necesitaSorteo(a, b) {
+  if (!esEmpate(a,b)) return false;
+  if (T.esSorteo) {
+    // Sin grupos: sorteo si PG, Dif y CH iguales
+    return a.CH === b.CH;
+  } else {
+    // Con grupos: sorteo solo si no hay particular y CH también igual
+    const particular = resultadoParticular(a,b);
+    return !particular && a.CH === b.CH;
+  }
+}
+
+function renderClasificacion() {
+  const cfg = getConfig(T.numParejas);
+  let htmlGrupos = '';
+
+  if (T.esSorteo) {
+    const tieneEmpate = hayEmpateConSorteo(T.clasif);
+    htmlGrupos = `<div class="grupo-card" style="max-width:600px"><div class="grupo-header"><div class="grupo-letra">S</div>
+      <div class="grupo-info">CLASIFICACIÓN GENERAL${tieneEmpate?' · <span style="color:var(--red);font-size:10px">⚠ HAY EMPATES — EDITA EL PUESTO MANUALMENTE</span>':''}</div></div>`;
+    htmlGrupos += '<table class="clasif-table"><thead><tr><th>#</th><th style="text-align:left">Pareja</th><th>PG</th><th>CH</th><th>Dif</th></tr></thead><tbody>';
+    T.clasif.forEach((s,i)=>{
+      const empate = i>0 && esEmpate(s,T.clasif[i-1]);
+      const cls = (s.clasif?'clasificado':'') + (empate?' empate-sorteo':'');
+      const badge = empate ? '<span class="empate-badge">SORTEO</span>' : '';
+      const mark = s.clasif?'<span class="badge-tercero">CLASIF</span>':'';
+      const posCell = empate
+        ? `<input class="pos-edit" type="number" min="1" max="${T.clasif.length}" value="${i+1}" title="Editar puesto" onchange="reordenarSorteo(this,${i},'sorteo')">`
+        : `<span class="pos-badge ${i===0?'gold':i<3?'silver':''}">${i+1}</span>`;
+      htmlGrupos+=`<tr class="${cls}"><td>${posCell}</td>
+        <td><span style="cursor:pointer;text-decoration:underline dotted" onclick="verResultadosPareja(${s.id})" title="Ver resultados">${s.nombre}</span>${badge}${mark}</td><td>${s.PG}</td><td>${s.CH}</td><td>${s.DIF>0?'+':''}${s.DIF}</td></tr>`;
+    });
+    htmlGrupos+='</tbody></table></div>';
+  } else {
+    htmlGrupos = '<div class="grupos-clasif">';
+    T.grupos.forEach(grupo=>{
+      const miembros = T.clasif.filter(s=>s.grupo===grupo.letra);
+      const tieneEmpate = hayEmpateConSorteo(miembros);
+      const avisoEmp = tieneEmpate ? '<div style="font-family:monospace;font-size:9px;color:var(--red)">⚠ EMPATE - EDITA EL PUESTO</div>' : '';
+      htmlGrupos+=`<div class="grupo-card">
+        <div class="grupo-header"><div class="grupo-letra">${grupo.letra}</div>
+        ${avisoEmp}
+        </div>
+        <table class="clasif-table">
+          <thead><tr><th>#</th><th style="text-align:left">Pareja</th><th>PG</th><th>CH</th><th>Dif</th></tr></thead>
+          <tbody>`;
+      miembros.forEach((s,i)=>{
+        const empate = i>0 && necesitaSorteo(s,miembros[i-1]);
+        const cls=(s.clasif?'clasificado':'')+(empate?' empate-sorteo':'');
+        const badge=empate?'<span class="empate-badge">SORTEO</span>':'';
+        const esMejorTercero=s.posGrupo===3&&s.clasif;
+        const badgeM=esMejorTercero?'<span class="badge-tercero">M3</span>':'';
+        const esMejorSegundo=s.posGrupo===2&&s.clasif&&(T.numParejas===20||T.numParejas===24);
+        const badgeM2=esMejorSegundo?'<span class="badge-tercero">M2</span>':'';
+        const posCell = empate
+          ? `<input class="pos-edit" type="number" min="1" max="${miembros.length}" value="${s.posGrupo}" title="Editar puesto" onchange="reordenarGrupo(this,${i},'${grupo.letra}')">`
+          : `<span class="pos-badge ${i===0?'gold':''}">${s.posGrupo}</span>`;
+        htmlGrupos+=`<tr class="${cls}"><td>${posCell}</td>
+          <td><span style="cursor:pointer;text-decoration:underline dotted" onclick="verResultadosPareja(${s.id})" title="Ver resultados">${s.nombre}</span>${badge}${badgeM}${badgeM2}</td><td>${s.PG}</td><td>${s.CH}</td><td>${s.DIF>0?'+':''}${s.DIF}</td></tr>`;
+      });
+      htmlGrupos+='</tbody></table></div>';
+    });
+    htmlGrupos+='</div>';
+  }
+  document.getElementById('clasif-grupos').innerHTML = htmlGrupos;
+
+  renderClasifGlobal();
+}
+
+// ══════════════════════════════════════════════
+// ELIMINATORIAS
+// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// HISTORIAL DE ENFRENTAMIENTOS
+// ══════════════════════════════════════════════
+function construirHistorial() {
+  // Devuelve Set de pares "idA-idB" (siempre menor-mayor) que ya se han enfrentado
+  const hist = new Set();
+  const add = (a,b) => { if(a&&b) hist.add([Math.min(a,b),Math.max(a,b)].join('-')); };
+
+  if (T.esSorteo) {
+    T.sorteoRondas.forEach(r=>r.forEach(p=>{ if(p.saved) add(p.p1,p.p2); }));
+  } else {
+    T.grupos.forEach(g=>g.rondas.forEach(r=>r.forEach(p=>{ if(p.saved) add(p.p1,p.p2); })));
+  }
+  return hist;
+}
+
+function yaJugaron(hist, a, b) {
+  if(!a||!b) return false;
+  return hist.has([Math.min(a.id,b.id),Math.max(a.id,b.id)].join('-'));
+}
+
+// Dado un array de clasificados [c0..c7] y el cruce base (índices de rivales),
+// busca la permutación del lado débil que minimiza repeticiones respetando
+// la prioridad de clasificación (el lado fuerte no se toca).
+// Cruce base cuartos: fuertes=[0,1,2,3], débiles=[7,6,5,4]
+// Devuelve array de 4 partidas {p1,p2}
+function optimizarCruces(fuertes, debiles, hist) {
+  // Genera todas las permutaciones de débiles
+  const perms = permutaciones(debiles);
+  let mejorPerm = debiles;
+  let mejorReps = Infinity;
+
+  perms.forEach(perm => {
+    const reps = fuertes.reduce((acc,f,i)=> acc + (yaJugaron(hist,f,perm[i])?1:0), 0);
+    if (reps < mejorReps) { mejorReps=reps; mejorPerm=perm; }
+  });
+
+  return fuertes.map((f,i)=>({p1:f, p2:mejorPerm[i], g1:'',g2:'',saved:false,
+    repetido: yaJugaron(hist,f,mejorPerm[i])}));
+}
+
+function permutaciones(arr) {
+  if(arr.length<=1) return [arr];
+  const res=[];
+  arr.forEach((el,i)=>{
+    const resto=arr.filter((_,j)=>j!==i);
+    permutaciones(resto).forEach(p=>res.push([el,...p]));
+  });
+  return res;
+}
+
+// Semis: 4 ganadores de cuartos → busca mejor cruce sin repeticiones
+// Ganadores llegan en orden: g0(Q0), g1(Q1), g2(Q2), g3(Q3)
+// Cruce base: g0 vs g1, g2 vs g3 → pero también podría ser g0vsg2, g0vsg3
+// Probamos los 3 emparejamientos posibles de 4 elementos en 2 pares
+function optimizarSemis(ganadores, hist) {
+  // 3 formas de emparejar 4 en 2 pares
+  const opciones=[
+    [[0,1],[2,3]],
+    [[0,2],[1,3]],
+    [[0,3],[1,2]]
+  ];
+  let mejorOpc=opciones[0], mejorReps=Infinity;
+  opciones.forEach(opc=>{
+    const reps=opc.reduce((acc,[a,b])=>acc+(yaJugaron(hist,ganadores[a],ganadores[b])?1:0),0);
+    if(reps<mejorReps){mejorReps=reps;mejorOpc=opc;}
+  });
+  const resultado = mejorOpc.map(([a,b])=>({
+    p1:ganadores[a],p2:ganadores[b],g1:'',g2:'',saved:false,
+    repetido:yaJugaron(hist,ganadores[a],ganadores[b])
+  }));
+  const totalReps = resultado.filter(p=>p.repetido).length;
+  if (totalReps===resultado.length && resultado.length>0) {
+    setTimeout(()=>{ 
+      const el=document.getElementById('elim-container');
+      if(el) el.insertAdjacentHTML('afterbegin','<div class="msg error" style="margin-bottom:16px">⚠ Todos los cruces de esta fase son repeticiones inevitables. No hay combinación posible que evite enfrentamientos ya jugados.</div>');
+    },100);
+  }
+  return resultado;
+}
+
+// ── Helpers para cruces por grupos ──────────────────────
+function getPorGrupo(pos, letra) {
+  // Devuelve el clasificado que es posGrupo=pos del grupo letra, o null
+  return T.clasif.find(s => s.grupo === letra && s.posGrupo === pos && s.clasif) || null;
+}
+
+function generarCrucesPorPatron(hist) {
+  const n = T.numParejas;
+  const LETRAS = ['A','B','C','D','E','F'];
+  const nGrupos = T.grupos.length;
+
+  // Obtener primeros y segundos disponibles por letra
+  const primeros = {}; // letra → pareja
+  const segundos = {}; // letra → pareja
+  const terceros = {}; // letra → pareja (solo para 12)
+  LETRAS.slice(0, nGrupos).forEach(l => {
+    primeros[l] = getPorGrupo(1, l);
+    segundos[l] = getPorGrupo(2, l);
+    terceros[l] = getPorGrupo(3, l);
+  });
+
+  // Patrón base: para cada primero, lista ordenada de candidatos (segundos/terceros)
+  // según el patrón por letra, saltando mismo grupo
+  function patronCandidatos(letraPrimero, pool, ordenPatron) {
+    // ordenPatron: array de letras en orden de preferencia desde este primero
+    // pool: objeto letra→pareja de candidatos disponibles
+    for (const l of ordenPatron) {
+      if (l !== letraPrimero && pool[l]) return l;
+    }
+    return null;
+  }
+
+  let crucesBruto = []; // [{p1, p2}] en orden de cuartos
+
+  if (n === 8) {
+    // 1A vs 2B · 1B vs 2A → semis directas
+    crucesBruto = [
+      {p1: primeros['A'], p2: segundos['B']},
+      {p1: primeros['B'], p2: segundos['A']},
+    ];
+  } else if (n === 12) {
+    // Clasifican: 1A,1B,1C, 2A,2B,2C, + 2 mejores 3ºs
+    // Patrón: 1A vs 2B · 1B vs 2C · 1C vs 3(menor letra) · 2A vs 3(otro)
+    // Encontrar los dos 3ºs clasificados por orden de letra
+    const tercerosClas = LETRAS.slice(0,3).map(l=>terceros[l]).filter(Boolean);
+    tercerosClas.sort((a,b)=>a.grupo.localeCompare(b.grupo));
+    const t1 = tercerosClas[0] || null; // letra más baja
+    const t2 = tercerosClas[1] || null;
+    crucesBruto = [
+      {p1: primeros['A'], p2: segundos['B']},
+      {p1: primeros['B'], p2: segundos['C']},
+      {p1: primeros['C'], p2: t1},
+      {p1: segundos['A'], p2: t2},
+    ];
+  } else if (n === 16) {
+    // 1A vs 2C · 1B vs 2D · 1C vs 2A · 1D vs 2B
+    crucesBruto = [
+      {p1: primeros['A'], p2: segundos['C']},
+      {p1: primeros['B'], p2: segundos['D']},
+      {p1: primeros['C'], p2: segundos['A']},
+      {p1: primeros['D'], p2: segundos['B']},
+    ];
+  } else if (n === 20) {
+    // Clasifican 5 primeros + 3 mejores segundos
+    // Para cada primero, buscar el segundo disponible de letra más baja según patrón
+    // Patrón orden por primero: A→B,C,D,E · B→C,D,E,A · C→D,E,A,B · D→E,A,B,C · E→A,B,C,D
+    const segundosClas = {}; // los que realmente clasificaron
+    LETRAS.slice(0,5).forEach(l => { if(segundos[l]) segundosClas[l] = segundos[l]; });
+    const asignados = new Set();
+    const cruces20 = [];
+    const ordenPatrones = {
+      'A': ['B','C','D','E'],
+      'B': ['C','D','E','A'],
+      'C': ['D','E','A','B'],
+      'D': ['E','A','B','C'],
+      'E': ['A','B','C','D'],
+    };
+    LETRAS.slice(0,5).forEach(lp => {
+      if (!primeros[lp]) return;
+      let asignado = null;
+      for (const lc of ordenPatrones[lp]) {
+        if (segundosClas[lc] && !asignados.has(lc)) {
+          asignado = lc;
+          asignados.add(lc);
+          break;
+        }
+      }
+      cruces20.push({
+        p1: primeros[lp],
+        p2: asignado ? segundosClas[asignado] : null
+      });
+    });
+    // Emparejar primeros sin segundo entre sí
+    const sinSegundo = cruces20.filter(c=>!c.p2).map(c=>c.p1);
+    const conSegundo = cruces20.filter(c=>c.p2);
+    crucesBruto = [...conSegundo];
+    for (let i=0; i<sinSegundo.length; i+=2) {
+      if (sinSegundo[i] && sinSegundo[i+1])
+        crucesBruto.push({p1: sinSegundo[i], p2: sinSegundo[i+1]});
+    }
+  } else if (n === 24) {
+    // Clasifican 6 primeros + 2 mejores segundos → van a 1A y 1D
+    const segundosClas = {};
+    LETRAS.slice(0,6).forEach(l => { if(segundos[l]) segundosClas[l] = segundos[l]; });
+    // Ordenar segundos por letra alfabética
+    const segsOrdenados = LETRAS.slice(0,6).filter(l=>segundosClas[l]);
+    const seg1 = segsOrdenados[0] ? segundosClas[segsOrdenados[0]] : null; // letra más baja → 1A
+    const seg2 = segsOrdenados[1] ? segundosClas[segsOrdenados[1]] : null; // siguiente → 1D
+    crucesBruto = [
+      {p1: primeros['A'], p2: seg1},
+      {p1: primeros['B'], p2: primeros['C']},
+      {p1: primeros['D'], p2: seg2},
+      {p1: primeros['E'], p2: primeros['F']},
+    ];
+  }
+
+  // Eliminar cruces con null
+  crucesBruto = crucesBruto.filter(c => c.p1 && c.p2);
+
+  // Aplicar anti-repetición: optimizar el orden del lado "débil" para minimizar repetidos
+  // Separar en fuertes (p1) y débiles (p2) y optimizar permutaciones
+  const fuertes = crucesBruto.map(c=>c.p1);
+  const debiles = crucesBruto.map(c=>c.p2);
+  return optimizarCruces(fuertes, debiles, hist);
+}
+
+function generarEliminatorias() {
+  const cl = T.clasificados;
+  const hist = construirHistorial();
+  T.elim = {cuartos:[],semis:[],final:[{p1:null,p2:null,g1:'',g2:'',saved:false}],ganador:null};
+
+  if (T.esSorteo || T.grupos.length === 0) {
+    // Modo sorteo: lógica anterior (clasificación pura)
+    if (cl.length===4) {
+      const cruces = optimizarCruces([cl[0],cl[1]],[cl[3],cl[2]],hist);
+      T.elim.semis = cruces.map(c=>({...c}));
+    } else if (cl.length===8) {
+      const fuertes=[cl[0],cl[1],cl[2],cl[3]];
+      const debiles=[cl[7],cl[6],cl[5],cl[4]];
+      T.elim.cuartos = optimizarCruces(fuertes, debiles, hist);
+      T.elim.semis=[
+        {p1:null,p2:null,g1:'',g2:'',saved:false},
+        {p1:null,p2:null,g1:'',g2:'',saved:false}
+      ];
+    }
+  } else {
+    // Modo grupos: patrón por letra con anti-repetición
+    const n = T.numParejas;
+    if (n === 8) {
+      // 4 clasificados → semis directas con patrón
+      const cruces = generarCrucesPorPatron(hist);
+      T.elim.semis = cruces.map(c=>({...c}));
+    } else {
+      // 8 clasificados → cuartos
+      T.elim.cuartos = generarCrucesPorPatron(hist);
+      T.elim.semis=[
+        {p1:null,p2:null,g1:'',g2:'',saved:false},
+        {p1:null,p2:null,g1:'',g2:'',saved:false}
+      ];
+    }
+  }
+
+  renderEliminatorias();
+  showTab('elim', document.querySelectorAll('.tab')[3]);
+}
+
+function renderEliminatorias() {
+  let html='';
+  const renderFase=(partidas,label,hora,fase)=>{
+    if(!partidas||!partidas.length) return '';
+    let h=`<div class="bracket-section">
+      <div class="bracket-title">${label} <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted)">${hora}</span></div>`;
+    partidas.forEach((p,i)=>{
+      const n1=p.p1?p.p1.nombre:'— Por determinar';
+      const n2=p.p2?p.p2.nombre:'— Por determinar';
+      const v1=p.saved?p.g1:'', v2=p.saved?p.g2:'';
+      const saved=p.saved?`<span class="result-saved">✓ ${p.g1}–${p.g2}</span> <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold)">→ ${p.g1>p.g2?n1:n2}</span> <button onclick="editarElim('${fase}',${i})" style="background:transparent;border:none;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;padding:2px 6px" title="Editar resultado">✎</button>`:'';
+      const repAviso=p.repetido&&!p.saved?`<span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--red);margin-left:4px">⚠ YA SE ENFRENTARON</span>`:'';
+      h+=`<div class="bracket-match" style="${p.repetido&&!p.saved?'border-color:rgba(192,57,43,0.4)':''}">
+        <span class="bracket-num">${label.split(' ')[0]} ${i+1}</span>
+        <span class="bracket-pareja">${n1}${repAviso}</span>
+        <div class="score-wrap">
+          <button class="score-btn" onclick="stepScore('e-${fase}-${i}-1',-1)">−</button>
+          <input class="score-input" type="number" min="0" max="5" value="${v1}" placeholder="0" id="e-${fase}-${i}-1" onkeydown="if(event.key==='Enter')guardarElim('${fase}',${i})">
+          <button class="score-btn" onclick="stepScore('e-${fase}-${i}-1',1)">+</button>
+        </div>
+        <span class="bracket-vs">—</span>
+        <div class="score-wrap">
+          <button class="score-btn" onclick="stepScore('e-${fase}-${i}-2',-1)">−</button>
+          <input class="score-input" type="number" min="0" max="5" value="${v2}" placeholder="0" id="e-${fase}-${i}-2" onkeydown="if(event.key==='Enter')guardarElim('${fase}',${i})">
+          <button class="score-btn" onclick="stepScore('e-${fase}-${i}-2',1)">+</button>
+        </div>
+        <span class="bracket-pareja" style="text-align:right">${n2}</span>
+        <button class="btn-save-result" onclick="guardarElim('${fase}',${i})">OK</button>
+        ${saved}
+      </div>`;
+    });
+    h+='</div>';
+    return h;
+  };
+
+  if(T.elim.cuartos.length) html+=renderFase(T.elim.cuartos,'CUARTOS DE FINAL',T.horas.cuartos,'cuartos');
+  html+=renderFase(T.elim.semis,'SEMIFINALES',T.horas.semis,'semis');
+  // Solo mostrar final si ambas semis están jugadas
+  const semisListas = T.elim.semis.length > 0 && T.elim.semis.every(s=>s.p1&&s.p2);
+  const semisJugadas = T.elim.semis.length > 0 && T.elim.semis.every(s=>s.saved);
+  if (semisListas) {
+    if (!semisJugadas) {
+      html += `<div class="msg info" style="margin-top:8px">⏳ Completa las semifinales para desbloquear la final.</div>`;
+    } else {
+      html+=renderFase(T.elim.final,'FINAL',T.horas.final,'final');
+    }
+  } else if (T.elim.cuartos.length===0) {
+    // Semis directas (4 clasificados)
+    html+=renderFase(T.elim.final,'FINAL',T.horas.final,'final');
+  }
+
+  if(T.elim.ganador) {
+    html+=`<div class="winner-box">
+      <div class="winner-label">🏆 Campeón del Torneo</div>
+      <div class="winner-name">${T.elim.ganador}</div>
+    </div>`;
+  }
+  document.getElementById('elim-container').innerHTML = html;
+}
+
+function imprimirClasificacion() {
+  if (!T.clasif || !T.clasif.length) { alert('Primero calcula la clasificación.'); return; }
+  const GOLD = '#C9A84C', DARK = '#1A1816';
+  let tablas = '';
+  if (T.esSorteo) {
+    const filas = T.clasif.map((s,i)=>{
+      const cls = s.clasif ? `background:#fdf8ee` : '';
+      return `<tr style="${cls};border-bottom:0.5px solid #ddd">
+        <td style="padding:6px 10px;text-align:center;font-weight:700">${i+1}</td>
+        <td style="padding:6px 10px">${s.nombre}${s.clasif?' ✓':''}</td>
+        <td style="padding:6px 10px;text-align:center">${s.PG}</td>
+        <td style="padding:6px 10px;text-align:center">${s.CH}</td>
+        <td style="padding:6px 10px;text-align:center;color:${s.DIF>=0?'#27ae60':'#c0392b'}">${s.DIF>0?'+':''}${s.DIF}</td>
+      </tr>`;
+    }).join('');
+    tablas = `<table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+      <thead><tr style="background:${DARK};color:white">
+        <th style="padding:7px 10px;font-size:10px;letter-spacing:1px">#</th>
+        <th style="padding:7px 10px;font-size:10px;letter-spacing:1px;text-align:left">Pareja</th>
+        <th style="padding:7px 10px;font-size:10px;letter-spacing:1px">PG</th>
+        <th style="padding:7px 10px;font-size:10px;letter-spacing:1px">CH</th>
+        <th style="padding:7px 10px;font-size:10px;letter-spacing:1px">Dif</th>
+      </tr></thead><tbody>${filas}</tbody></table>`;
+  } else {
+    const cols = Math.min(T.grupos.length, 3);
+    tablas = `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:16px">`;
+    T.grupos.forEach(grupo=>{
+      const miembros = T.clasif.filter(s=>s.grupo===grupo.letra);
+      const filas = miembros.map((s,i)=>{
+        const cls = s.clasif ? 'background:#fdf8ee' : '';
+        return `<tr style="${cls};border-bottom:0.5px solid #ddd">
+          <td style="padding:5px 8px;text-align:center;font-weight:700">${s.posGrupo}</td>
+          <td style="padding:5px 8px;font-size:11px">${s.nombre}${s.clasif?' ✓':''}</td>
+          <td style="padding:5px 8px;text-align:center">${s.PG}</td>
+          <td style="padding:5px 8px;text-align:center">${s.CH}</td>
+          <td style="padding:5px 8px;text-align:center;color:${s.DIF>=0?'#27ae60':'#c0392b'}">${s.DIF>0?'+':''}${s.DIF}</td>
+        </tr>`;
+      }).join('');
+      tablas += `<div>
+        <div style="background:${DARK};color:${GOLD};font-family:monospace;font-size:13px;font-weight:700;padding:6px 10px;letter-spacing:2px">GRUPO ${grupo.letra}</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead><tr style="background:#333;color:white">
+            <th style="padding:5px 8px">#</th><th style="padding:5px 8px;text-align:left">Pareja</th>
+            <th style="padding:5px 8px">PG</th><th style="padding:5px 8px">CH</th><th style="padding:5px 8px">Dif</th>
+          </tr></thead><tbody>${filas}</tbody>
+        </table>
+      </div>`;
+    });
+    tablas += '</div>';
+  }
+  // Tabla global de clasificados
+  let tablaGlobal = '';
+  if (T.clasificados && T.clasificados.length>0) {
+    const filasGlobal = T.clasificados.map((s,i)=>{
+      return `<tr style="border-bottom:0.5px solid #eee;background:${i%2===0?'#fdf8ee':'white'}">
+        <td style="padding:5px 10px;text-align:center;font-weight:700;color:#b8860b">${i+1}</td>
+        <td style="padding:5px 10px;font-weight:600">${s.nombre}</td>
+        <td style="padding:5px 10px;text-align:center;color:#888">${s.grupo||'—'}</td>
+        <td style="padding:5px 10px;text-align:center">${s.PG}</td>
+        <td style="padding:5px 10px;text-align:center">${s.CH}</td>
+        <td style="padding:5px 10px;text-align:center;color:${s.DIF>=0?'#27ae60':'#c0392b'}">${s.DIF>0?'+':''}${s.DIF}</td>
+      </tr>`;
+    }).join('');
+    tablaGlobal = `<div style="margin-bottom:18px">
+      <div style="font-family:monospace;font-size:11px;font-weight:700;color:#b8860b;letter-spacing:2px;margin-bottom:6px;border-left:3px solid #b8860b;padding-left:8px">CLASIFICADOS PARA ELIMINATORIAS</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr style="background:#1a1916;color:white">
+          <th style="padding:6px 10px">#</th><th style="padding:6px 10px;text-align:left">Pareja</th>
+          <th style="padding:6px 10px">Grupo</th><th style="padding:6px 10px">PG</th>
+          <th style="padding:6px 10px">CH</th><th style="padding:6px 10px">Dif</th>
+        </tr></thead>
+        <tbody>${filasGlobal}</tbody>
+      </table>
+    </div>`;
+  }
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Clasificación · ${T.nombre}</title>
+  <style>@page{size:A4 ${T.grupos.length>3?'landscape':'portrait'};margin:14mm 16mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Helvetica,Arial,sans-serif;font-size:12px}</style>
+  </head><body>
+  <div style="border-bottom:3px solid ${GOLD};padding-bottom:8px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end">
+    <div><div style="font-family:monospace;font-size:22px;font-weight:700;letter-spacing:3px;color:${DARK}">🃏 ${T.nombre}</div>
+    <div style="font-family:monospace;font-size:10px;color:#888;letter-spacing:2px">CLASIFICACIÓN FASE DE GRUPOS</div></div>
+    <div style="font-family:monospace;font-size:11px;color:#888">${new Date().toLocaleDateString('es-ES')}</div>
+  </div>
+  ${tablaGlobal}
+  ${tablas}
+  <div style="margin-top:14px;border-top:1px solid #ddd;padding-top:8px;font-family:monospace;font-size:9px;color:#bbb">
+    ✓ Clasificado para eliminatorias · Desempate con grupos: PG → Dif.CH → Particular → CH → Sorteo
+  </div>
+  </body></html>`;
+  const w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{w.focus();w.print();},500);
+}
+
+function editarElim(fase, i) {
+  // Desmarcar como guardado para permitir edición
+  if (!confirm('¿Editar este resultado? Si hay fases posteriores calculadas, se recalcularán.')) return;
+  T.elim[fase][i].saved = false;
+  T.elim[fase][i].g1 = '';
+  T.elim[fase][i].g2 = '';
+  // Si es cuartos, limpiar semis dependientes
+  if (fase === 'cuartos') {
+    const semiIdx = i < 2 ? 0 : 1;
+    const slot = i % 2 === 0 ? 'p1' : 'p2';
+    if (T.elim.semis[semiIdx]) {
+      T.elim.semis[semiIdx][slot] = null;
+      T.elim.semis[semiIdx].saved = false;
+      T.elim.semis[semiIdx].g1 = '';
+      T.elim.semis[semiIdx].g2 = '';
+      T.elim.final[0].p1 = null;
+      T.elim.final[0].p2 = null;
+      T.elim.final[0].saved = false;
+    }
+  } else if (fase === 'semis') {
+    T.elim.final[0][i===0?'p1':'p2'] = null;
+    T.elim.final[0].saved = false;
+    T.elim.ganador = null;
+  }
+  guardarEstado();
+  renderEliminatorias();
+}
+
+function guardarElim(fase, i) {
+  const g1=parseInt(document.getElementById(`e-${fase}-${i}-1`).value);
+  const g2=parseInt(document.getElementById(`e-${fase}-${i}-2`).value);
+  if(!validarChicos(g1,g2,'elim')) return;
+  T.elim[fase][i].g1=g1; T.elim[fase][i].g2=g2; T.elim[fase][i].saved=true;
+  guardarTorneoCursoCompleto();
+  const ganador=g1>g2?T.elim[fase][i].p1:T.elim[fase][i].p2;
+  T.elim[fase][i].ganador=ganador;
+
+  if(fase==='cuartos') {
+    // Guardar ganador en su slot provisional
+    T.elim[fase][i]._ganador=ganador;
+    // Cuando los 4 cuartos estén resueltos, calcular semis con anti-repetición
+    const resueltos=T.elim.cuartos.filter(c=>c.saved);
+    if(resueltos.length===4) {
+      const hist=construirHistorial();
+      // Añadir al historial los propios cruces de cuartos ya jugados
+      T.elim.cuartos.forEach(c=>{
+        if(c.p1&&c.p2) hist.add([Math.min(c.p1.id,c.p2.id),Math.max(c.p1.id,c.p2.id)].join('-'));
+      });
+      const ganadores=T.elim.cuartos.map(c=>c._ganador);
+      const semisOpt=optimizarSemis(ganadores,hist);
+      T.elim.semis=semisOpt;
+    }
+  } else if(fase==='semis') {
+    T.elim.final[0][i===0?'p1':'p2']=ganador;
+    // Verificar que ambas semis están jugadas
+    const semisCompletas = T.elim.semis.every(s=>s.saved);
+    if (!semisCompletas) {
+      const faltantes = T.elim.semis.filter(s=>!s.saved).length;
+      // Aviso visual en eliminatorias
+      setTimeout(()=>{
+        const msg = document.createElement('div');
+        msg.className='msg info';
+        msg.style.cssText='position:fixed;bottom:24px;right:20px;z-index:999;max-width:320px';
+        msg.textContent=`Falta ${faltantes} semifinal por jugar antes de la final.`;
+        document.body.appendChild(msg);
+        setTimeout(()=>msg.remove(),4000);
+      },200);
+    }
+  } else if(fase==='final') {
+    T.elim.ganador=ganador.nombre;
+    guardarEstado();
+    setTimeout(mostrarResumenFinal, 300);
+  }
+  renderEliminatorias();
+}
+
+function mostrarResumenFinal() {
+  const fin = T.elim.final[0];
+  if (!fin || !fin.saved) return;
+  const campeon = fin.g1>fin.g2 ? fin.p1 : fin.p2;
+  const finalista = fin.g1>fin.g2 ? fin.p2 : fin.p1;
+  const semisElim = T.elim.semis.filter(s=>s.saved).map(s=>s.g1>s.g2?s.p2:s.p1).filter(Boolean);
+
+  const podio = [
+    {pos:'🥇 CAMPEÓN', nombre:campeon?.nombre||'—', color:'var(--gold)'},
+    {pos:'🥈 Finalista', nombre:finalista?.nombre||'—', color:'#aaa'},
+    ...semisElim.map(p=>({pos:'🥉 3º / 4º', nombre:p?.nombre||'—', color:'#cd7f32'}))
+  ];
+
+  // Resultados por fase
+  const faseRow = (n1,g1,g2,n2) => {
+    const b1=g1>g2?'font-weight:700':'opacity:0.55', b2=g2>g1?'font-weight:700':'opacity:0.55';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 0;font-size:12px">
+      <span style="${b1};flex:1;text-align:left">${n1}</span>
+      <span style="font-family:'IBM Plex Mono',monospace;color:var(--gold);white-space:nowrap">${g1}–${g2}</span>
+      <span style="${b2};flex:1;text-align:right">${n2}</span>
+    </div>`;
+  };
+
+  let resultadosHTML = '';
+  if (T.elim.cuartos.filter(x=>x.saved).length>0) {
+    resultadosHTML += `<div style="margin-bottom:10px;text-align:left">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-bottom:4px">CUARTOS</div>
+      ${T.elim.cuartos.filter(x=>x.saved).map(x=>faseRow(x.p1?.nombre||'—',x.g1,x.g2,x.p2?.nombre||'—')).join('')}
+    </div>`;
+  }
+  if (T.elim.semis.filter(x=>x.saved).length>0) {
+    resultadosHTML += `<div style="margin-bottom:10px;text-align:left">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-bottom:4px">SEMIFINALES</div>
+      ${T.elim.semis.filter(x=>x.saved).map(x=>faseRow(x.p1?.nombre||'—',x.g1,x.g2,x.p2?.nombre||'—')).join('')}
+    </div>`;
+  }
+  resultadosHTML += `<div style="text-align:left">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-bottom:4px">FINAL</div>
+    ${faseRow(fin.p1?.nombre||'—',fin.g1,fin.g2,fin.p2?.nombre||'—')}
+  </div>`;
+
+  const modal = document.createElement('div');
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto';
+  modal.innerHTML=`<div style="background:var(--card);border:2px solid var(--gold);max-width:520px;width:100%;padding:28px;text-align:center">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:3px;margin-bottom:6px">FIN DEL TORNEO</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);letter-spacing:4px;margin-bottom:18px">${T.nombre}</div>
+    ${podio.map(p=>`<div style="margin-bottom:8px;padding:10px 14px;border:1px solid var(--border);display:flex;align-items:center;gap:12px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:80px;text-align:left">${p.pos}</div>
+      <div style="font-size:17px;font-weight:600;color:${p.color};flex:1;text-align:left">${p.nombre}</div>
+    </div>`).join('')}
+    <hr style="border:none;border-top:1px solid var(--border);margin:14px 0">
+    ${resultadosHTML}
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap">
+      <button onclick="guardarTorneoEnRanking();this.closest('[style*=fixed]').remove()" class="btn-primary" style="font-size:11px">💾 Guardar en Ranking</button>
+      <button onclick="this.closest('[style*=fixed]').remove()" class="btn-secondary" style="font-size:11px">Cerrar</button>
+    </div>
+  </div>`;
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+  document.body.appendChild(modal);
+}
+
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function getNombre(id) {
+  const p=T.parejas.find(x=>x.id===id);
+  return p?p.nombre:'Pareja '+id;
+}
+
+function stepScore(id, delta) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const current = parseInt(el.value) || 0;
+  const next = Math.max(0, Math.min(5, current + delta));
+  el.value = next;
+}
+
+function validarChicos(g1, g2, contexto) {
+  if (isNaN(g1)||isNaN(g2)) { alert('Introduce el resultado de la partida.'); return false; }
+  if (g1<0||g1>5||g2<0||g2>5) { alert(`Resultado inválido (${g1}-${g2}). Los chicos van de 0 a 5.`); return false; }
+  if (g1===g2) { alert('No puede haber empate en el mus. Un valor debe ser diferente.'); return false; }
+  return true;
+}
+
+async function resetTorneo() {
+  if(!confirm('¿Nuevo torneo? Se perderán los datos del torneo actual (el ranking histórico se mantiene).')) return;
+  borrarTorneoCurso();
+  localStorage.removeItem(LS_SETUP);
+  // Limpiar también el bin de torneo en JSONBin
+  if (JSONBIN_TORNEO_ID) {
+    try {
+      await fetch(`${JSONBIN_URL}/${JSONBIN_TORNEO_ID}`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+        body: JSON.stringify({})
+      });
+    } catch(e) {}
+  }
+  T={nombre:'',numParejas:16,parejas:[],grupos:[],esSorteo:false,sorteoRondas:[[],[],[]],clasif:[],clasificados:[],elim:{cuartos:[],semis:[],final:[],ganador:null},horas:{}};
+  document.getElementById('header-sub').textContent='Configuración pendiente';
+  generarParejas();
+  showTab('setup', document.querySelectorAll('.tab')[0]);
+}
+
+// ══════════════════════════════════════════════
+// EXPORTAR CSV
+// ══════════════════════════════════════════════
+function exportarCSV() {
+  if(!T.parejas.length){alert('Primero inicia el torneo.');return;}
+  const rows=[];
+  rows.push([T.nombre.toUpperCase()]);
+  rows.push([`${T.numParejas} PAREJAS · ${T.esSorteo?'PATRÓN AUTOMÁTICO':T.grupos.length+' GRUPOS'}`]);
+  rows.push([]);
+
+  // CUADRO DE ENFRENTAMIENTOS
+  rows.push(['CUADRO DE ENFRENTAMIENTOS']);
+  rows.push(['Ronda','Partida','Pareja 1','VS','Pareja 2','CH 1','CH 2','Ganador']);
+  if (T.esSorteo) {
+    T.sorteoRondas.forEach((ronda,ri) => {
+      ronda.forEach((p,pi) => {
+        const n1=getNombre(p.p1), n2=getNombre(p.p2);
+        const g1=p.saved?p.g1:'', g2=p.saved?p.g2:'';
+        const gan=p.saved?(p.g1>p.g2?n1:n2):'';
+        rows.push([`R${ri+1}`, pi+1, n1,'vs',n2, g1, g2, gan]);
+      });
+    });
+  } else {
+    T.grupos.forEach(grupo => {
+      grupo.rondas.forEach((ronda,ri) => {
+        ronda.forEach((p,pi) => {
+          const n1=getNombre(p.p1), n2=getNombre(p.p2);
+          const g1=p.saved?p.g1:'', g2=p.saved?p.g2:'';
+          const gan=p.saved?(p.g1>p.g2?n1:n2):'';
+          rows.push([`${grupo.letra}-R${ri+1}`, pi+1, n1,'vs',n2, g1, g2, gan]);
+        });
+      });
+    });
+  }
+  rows.push([]);
+
+  if(T.esSorteo) {
+    rows.push(['RESULTADOS SORTEO']);
+    rows.push(['Ronda','Pareja 1','CH','CH','Pareja 2','Ganador']);
+    T.sorteoRondas.forEach((ronda,ri)=>ronda.forEach(p=>{
+      if(p.saved) rows.push([`R${ri+1}`,getNombre(p.p1),p.g1,p.g2,getNombre(p.p2),p.g1>p.g2?getNombre(p.p1):getNombre(p.p2)]);
+    }));
+  } else {
+    rows.push(['RESULTADOS GRUPOS']);
+    rows.push(['Grupo','Ronda','Pareja 1','CH','CH','Pareja 2','Ganador']);
+    T.grupos.forEach(g=>g.rondas.forEach((ronda,ri)=>ronda.forEach(p=>{
+      if(p.saved) rows.push([g.letra,`R${ri+1}`,getNombre(p.p1),p.g1,p.g2,getNombre(p.p2),p.g1>p.g2?getNombre(p.p1):getNombre(p.p2)]);
+    })));
+  }
+
+  rows.push([]);
+  rows.push(['CLASIFICACIÓN']);
+  rows.push(['Pos','Pareja','Grupo','PG','CH','Dif.CH','Clasif.']);
+  T.clasif.forEach((s,i)=>rows.push([i+1,s.nombre,s.grupo,s.PG,s.CH,s.DIF,s.clasif?'SÍ':'']));
+
+  if(T.elim.cuartos.length||T.elim.semis.length) {
+    rows.push([]);
+    rows.push(['ELIMINATORIAS']);
+    rows.push(['Fase','Pareja 1','CH','CH','Pareja 2','Ganador']);
+    [...T.elim.cuartos,...T.elim.semis,...T.elim.final].forEach((p,i)=>{
+      if(p&&p.saved){
+        const fase=i<T.elim.cuartos.length?'Cuartos':i<T.elim.cuartos.length+T.elim.semis.length?'Semis':'Final';
+        rows.push([fase,p.p1?.nombre||'',p.g1,p.g2,p.p2?.nombre||'',p.g1>p.g2?p.p1?.nombre:p.p2?.nombre]);
+      }
+    });
+  }
+  if(T.elim.ganador) { rows.push([]); rows.push(['CAMPEÓN',T.elim.ganador]); }
+
+  const csv=rows.map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=(T.nombre||'torneo_mus')+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════
+// PDF CUADRO DESDE SETUP
+// ══════════════════════════════════════════════
+function generarPDFCuadroSetup() {
+  const n = parseInt(document.getElementById('num-parejas').value);
+  const nombre = document.getElementById('nombre-torneo').value || 'Torneo';
+  const cfg = getConfig(n);
+  const horas = {
+    r1: document.getElementById('hora-r1').value,
+    r2: document.getElementById('hora-r2').value,
+    r3: document.getElementById('hora-r3').value
+  };
+  // Leer nombres
+  const parejas = [];
+  for (let i=1;i<=n;i++) {
+    const el = document.getElementById('pareja-'+i);
+    parejas.push({id:i, nombre: (el&&el.value.trim()) ? el.value.trim() : 'Pareja '+i});
+  }
+  // Generar rondas
+  let rondas;
+  if (cfg.esSorteo) {
+    rondas = generarRondasSorteo(n, parejas);
+  } else {
+    rondas = [];
+    let pid=0;
+    cfg.grupos.forEach((tam,gi)=>{
+      const ids=parejas.slice(pid,pid+tam).map(p=>p.id); pid+=tam;
+      const r=generarRondasGrupo(ids,tam);
+      r.forEach((ronda,ri)=>{
+        if(!rondas[ri]) rondas[ri]=[];
+        rondas[ri].push(...ronda);
+      });
+    });
+  }
+  const getNombrePDF = id => parejas.find(p=>p.id===id)?.nombre || 'P'+id;
+  const GOLD='#C9A84C', DARK='#1A1816';
+  let bloques='';
+  [0,1,2].forEach(ri=>{
+    const ronda = rondas[ri] || [];
+    if(!ronda.length) return;
+    bloques += `<div style="page-break-before:${ri>0?'always':'avoid'}">`;
+    bloques += `<div style="border-bottom:3px solid ${GOLD};padding-bottom:8px;margin-bottom:18px;display:flex;align-items:flex-end;justify-content:space-between">
+      <div><div style="font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-size:22px;color:${DARK};letter-spacing:2px">${nombre}</div>
+      <div style="font-family:monospace;font-size:10px;color:#888;letter-spacing:1.5px;text-transform:uppercase">RONDA ${ri+1} · ${horas['r'+(ri+1)]}</div></div></div>`;
+    bloques += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+    ronda.forEach((p,pi)=>{
+      const n1=getNombrePDF(p.p1), n2=getNombrePDF(p.p2);
+      bloques += `<div style="border:1.5px solid ${DARK};page-break-inside:avoid">
+        <div style="font-family:monospace;font-size:9px;letter-spacing:1.5px;color:#888;padding:5px 12px 0;text-transform:uppercase">Partida ${pi+1}</div>
+        <div style="display:flex;align-items:stretch;min-height:56px">
+          <div style="flex:1;padding:8px 12px;display:flex;align-items:center;font-size:14px;font-weight:600">${n1}</div>
+          <div style="width:28px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#aaa;border-left:1px solid #eee;border-right:1px solid #eee">VS</div>
+          <div style="flex:1;padding:8px 12px;display:flex;align-items:center;font-size:14px;font-weight:600">${n2}</div>
+          <div style="width:110px;border-left:1.5px solid ${DARK};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px">
+            <div style="font-family:monospace;font-size:8px;color:#aaa;letter-spacing:1px">RESULTADO</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="width:32px;height:32px;border:1.5px solid ${DARK}"></div>
+              <span style="font-family:monospace;color:#bbb">—</span>
+              <div style="width:32px;height:32px;border:1.5px solid ${DARK}"></div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    });
+    bloques += '</div></div>';
+  });
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cuadro · ${nombre}</title>
+  <style>@page{size:A4 landscape;margin:14mm 16mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Helvetica,Arial,sans-serif}</style>
+  </head><body>${bloques}</body></html>`;
+  const w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{w.focus();w.print();},500);
+}
+
+// ══════════════════════════════════════════════
+// PDF RANKING
+// ══════════════════════════════════════════════
+function generarPDFRanking() {
+  const data = cargarRanking();
+  const jugadores = Object.entries(data.jugadores)
+    .map(([nombre,s])=>({nombre,...s}))
+    .sort((a,b)=>b.puntos!==a.puntos?b.puntos-a.puntos:b.torneos-a.torneos);
+
+  if (!jugadores.length) { alert('No hay datos de ranking todavía.'); return; }
+
+  const filas = jugadores.map((j,i)=>{
+    const med = i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
+    return `<tr style="border-bottom:1px solid #e0e0e0">
+      <td style="padding:10px 12px;text-align:center;font-family:monospace;font-size:13px">${med}</td>
+      <td style="padding:10px 12px;font-size:14px;font-weight:600">${j.nombre}</td>
+      <td style="padding:10px 12px;text-align:center;font-family:monospace;font-size:18px;font-weight:700;color:#b8860b">${j.puntos}</td>
+      <td style="padding:10px 12px;text-align:center;font-family:monospace">${j.pos1||0}</td>
+      <td style="padding:10px 12px;text-align:center;font-family:monospace">${j.pos2||0}</td>
+      <td style="padding:10px 12px;text-align:center;font-family:monospace">${j.pos3||0}</td>
+      <td style="padding:10px 12px;text-align:center;font-family:monospace">${j.pos4||0}</td>
+      <td style="padding:10px 12px;text-align:center;font-family:monospace;color:#888">${j.torneos||0}</td>
+    </tr>`;
+  }).join('');
+
+  const histFil = [...data.torneos].reverse().map(t=>`
+    <tr style="border-bottom:1px solid #eee">
+      <td style="padding:8px 12px;font-weight:600">${t.nombre}</td>
+      <td style="padding:8px 12px;color:#888;font-family:monospace;font-size:12px">${t.fecha}</td>
+      <td style="padding:8px 12px;color:#888;font-size:12px">${t.numParejas} parejas</td>
+      <td style="padding:8px 12px;font-size:13px">${t.resultados.map(r=>`${r.pos===1?'🥇':r.pos===2?'🥈':r.pos===3?'🥉':'4º'} ${r.pareja}`).join(' · ')}</td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+  <title>Ranking · ${new Date().toLocaleDateString('es-ES')}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;600&display=swap');
+    @page{size:A4 portrait;margin:18mm 16mm}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'IBM Plex Sans',sans-serif;color:#1a1816}
+    .cab{border-bottom:3px solid #1a1816;padding-bottom:10px;margin-bottom:22px;display:flex;align-items:flex-end;justify-content:space-between}
+    .tit{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px}
+    .sub{font-family:monospace;font-size:11px;color:#888;letter-spacing:2px}
+    table{width:100%;border-collapse:collapse}
+    th{font-family:monospace;font-size:10px;letter-spacing:2px;color:#888;text-transform:uppercase;padding:8px 12px;border-bottom:2px solid #1a1816;text-align:center}
+    th:nth-child(2){text-align:left}
+    .sec{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;margin:24px 0 10px;border-bottom:1px solid #ddd;padding-bottom:6px}
+    .pie{margin-top:24px;border-top:1px solid #ddd;padding-top:10px;font-family:monospace;font-size:9px;color:#bbb;display:flex;justify-content:space-between}
+  </style></head><body>
+  <div class="cab">
+    <div><div class="tit">🃏 Ranking Torneo de Mus</div><div class="sub">${jugadores.length} jugadores · ${data.torneos.length} torneos</div></div>
+    <div style="font-family:monospace;font-size:12px;color:#888">${new Date().toLocaleDateString('es-ES')}</div>
+  </div>
+  <table>
+    <thead><tr><th>#</th><th style="text-align:left">Jugador</th><th>Pts</th><th>🥇</th><th>🥈</th><th>🥉</th><th>4º</th><th>Torn.</th></tr></thead>
+    <tbody>${filas}</tbody>
+  </table>
+  ${histFil?`<div class="sec">Historial de Torneos</div>
+  <table><thead><tr><th style="text-align:left">Torneo</th><th style="text-align:left">Fecha</th><th style="text-align:left">Parejas</th><th style="text-align:left">Resultado</th></tr></thead>
+  <tbody>${histFil}</tbody></table>`:''}
+  <div class="pie"><span>RANKING TORNEO DE MUS</span><span>${new Date().toLocaleDateString('es-ES')}</span></div>
+  </body></html>`;
+
+  // Opción: descargar o imprimir
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Ranking_Mus_' + new Date().toLocaleDateString('es-ES').replace(/\//g,'-') + '.html';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════
+// GENERADOR DE PDFs
+// ══════════════════════════════════════════════
+
+function abrirPDF(html, nombre) {
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{ w.focus(); w.print(); }, 600);
+}
+
+function estilosPDF(orientacion) {
+  return `
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;600&family=IBM+Plex+Mono:wght@400;600&display=swap');
+      @page { size: A4 ${orientacion}; margin: 18mm 16mm; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'IBM Plex Sans', sans-serif; color: #1a1816; background: white; }
+      .cabecera { border-bottom: 3px solid #1a1816; padding-bottom: 10px; margin-bottom: 22px; display: flex; align-items: flex-end; justify-content: space-between; }
+      .cab-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 4px; color: #1a1816; line-height: 1; }
+      .cab-fase { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 2px; color: #888; text-transform: uppercase; }
+      .cab-hora { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 600; color: #1a1816; }
+      .enfrentamiento { border: 1.5px solid #1a1816; margin-bottom: 14px; page-break-inside: avoid; }
+      .enf-num { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 2px; color: #888; padding: 6px 14px 0; text-transform: uppercase; }
+      .enf-cuerpo { display: flex; align-items: stretch; min-height: 64px; }
+      .enf-pareja { flex: 1; padding: 10px 14px; display: flex; align-items: center; }
+      .enf-pareja-nombre { font-size: 17px; font-weight: 600; line-height: 1.2; }
+      .enf-pareja-sub { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #888; margin-top: 3px; }
+      .enf-vs { width: 36px; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #aaa; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; background: #fafafa; }
+      .enf-resultado { width: 130px; border-left: 1.5px solid #1a1816; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px; }
+      .enf-resultado-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 1.5px; color: #aaa; text-transform: uppercase; }
+      .enf-cajas { display: flex; align-items: center; gap: 8px; }
+      .caja { width: 38px; height: 38px; border: 1.5px solid #1a1816; }
+      .caja-sep { font-family: 'IBM Plex Mono', monospace; font-size: 16px; color: #bbb; }
+      .pie { margin-top: 24px; border-top: 1px solid #ddd; padding-top: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: #bbb; letter-spacing: 1px; display: flex; justify-content: space-between; }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    </style>`;
+}
+
+function bloqueEnfrentamiento(num, p1, p2, sub1, sub2) {
+  return `
+    <div class="enfrentamiento">
+      <div class="enf-num">Partida ${num}</div>
+      <div class="enf-cuerpo">
+        <div class="enf-pareja">
+          <div>
+            <div class="enf-pareja-nombre">${p1}</div>
+            ${sub1?`<div class="enf-pareja-sub">${sub1}</div>`:''}
+          </div>
+        </div>
+        <div class="enf-vs">VS</div>
+        <div class="enf-pareja">
+          <div>
+            <div class="enf-pareja-nombre">${p2}</div>
+            ${sub2?`<div class="enf-pareja-sub">${sub2}</div>`:''}
+          </div>
+        </div>
+        <div class="enf-resultado">
+          <div class="enf-resultado-label">Resultado</div>
+          <div class="enf-cajas">
+            <div class="caja"></div>
+            <div class="caja-sep">—</div>
+            <div class="caja"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function cabeceraPDF(titulo, fase, hora) {
+  return `
+    <div class="cabecera">
+      <div>
+        <div class="cab-titulo">${titulo}</div>
+        <div class="cab-fase">${fase}</div>
+      </div>
+      ${hora?`<div class="cab-hora">${hora}</div>`:''}
+    </div>`;
+}
+
+function piePDF() {
+  return `<div class="pie"><span>TORNEO DE MUS · ${T.nombre.toUpperCase()}</span><span>${new Date().toLocaleDateString('es-ES')}</span></div>`;
+}
+
+// PDF RONDAS 1, 2, 3
+function flashBtn(btn) {
+  if (!btn) return;
+  const orig = btn.textContent;
+  btn.textContent = '⏳ Generando...';
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+}
+
+function generarPDFRondas() {
+  if (!T.parejas.length) { alert('Primero inicia el torneo.'); return; }
+
+  const horas = [T.horas.r1, T.horas.r2, T.horas.r3];
+  let bloques = '';
+
+  if (T.esSorteo) {
+    [0,1,2].forEach(ri => {
+      const ronda = T.sorteoRondas[ri];
+      if (!ronda || !ronda.length) return;
+      bloques += `<div style="page-break-before:${ri>0?'always':'avoid'}">`;
+      bloques += cabeceraPDF(T.nombre, `RONDA ${ri+1}`, horas[ri]);
+      bloques += '<div class="grid2">';
+      ronda.forEach((p,pi) => {
+        const n1 = p.p1 ? getNombre(p.p1) : '— Sin asignar';
+        const n2 = p.p2 ? getNombre(p.p2) : '— Sin asignar';
+        bloques += bloqueEnfrentamiento(pi+1, n1, n2, '', '');
+      });
+      bloques += '</div>' + piePDF() + '</div>';
+    });
+  } else {
+    [0,1,2].forEach(ri => {
+      bloques += `<div style="page-break-before:${ri>0?'always':'avoid'}">`;
+      bloques += cabeceraPDF(T.nombre, `RONDA ${ri+1}`, horas[ri]);
+      bloques += '<div class="grid2">';
+      let num = 1;
+      T.grupos.forEach(grupo => {
+        grupo.rondas[ri].forEach(p => {
+          const n1 = getNombre(p.p1);
+          const n2 = getNombre(p.p2);
+          bloques += bloqueEnfrentamiento(num++, n1, n2, `Grupo ${grupo.letra}`, `Grupo ${grupo.letra}`);
+        });
+      });
+      bloques += '</div>' + piePDF() + '</div>';
+    });
+  }
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Rondas · ${T.nombre}</title>${estilosPDF('landscape')}</head><body>${bloques}</body></html>`;
+  abrirPDF(html, `rondas_${T.nombre}`);
+}
+
+// PDF CUARTOS
+function generarPDFCuartos() {
+  if (!T.elim.cuartos.length && !T.elim.semis.length) { alert('Primero genera las eliminatorias.'); return; }
+
+  const partidas = T.elim.cuartos.length ? T.elim.cuartos : T.elim.semis;
+  const fase = T.elim.cuartos.length ? 'CUARTOS DE FINAL' : 'SEMIFINALES';
+  const hora = T.elim.cuartos.length ? T.horas.cuartos : T.horas.semis;
+
+  let bloques = cabeceraPDF(T.nombre, fase, hora);
+  // 4 partidas en 2x2 o 2 en 1 col
+  const usar2col = partidas.length >= 3;
+  if (usar2col) bloques += '<div class="grid2">';
+  partidas.forEach((p,i) => {
+    const n1 = p.p1 ? p.p1.nombre : '— Por determinar';
+    const n2 = p.p2 ? p.p2.nombre : '— Por determinar';
+    const rep = p.repetido ? '⚠ Ya se enfrentaron en grupos' : '';
+    bloques += bloqueEnfrentamiento(i+1, n1, n2, rep, '');
+  });
+  if (usar2col) bloques += '</div>';
+  bloques += piePDF();
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${fase} · ${T.nombre}</title>${estilosPDF('portrait')}</head><body>${bloques}</body></html>`;
+  abrirPDF(html, `cuartos_${T.nombre}`);
+}
+
+// PDF SEMIS
+function generarPDFSemis() {
+  if (!T.elim.semis.length || !T.elim.semis[0].p1) { alert('Las semifinales no están generadas todavía.'); return; }
+
+  let bloques = cabeceraPDF(T.nombre, 'SEMIFINALES', T.horas.semis);
+  T.elim.semis.forEach((p,i) => {
+    const n1 = p.p1 ? p.p1.nombre : '— Por determinar';
+    const n2 = p.p2 ? p.p2.nombre : '— Por determinar';
+    const rep = p.repetido ? '⚠ Ya se enfrentaron anteriormente' : '';
+    bloques += bloqueEnfrentamiento(i+1, n1, n2, rep, '');
+  });
+  bloques += piePDF();
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Semifinales · ${T.nombre}</title>${estilosPDF('portrait')}</head><body>${bloques}</body></html>`;
+  abrirPDF(html, `semis_${T.nombre}`);
+}
+
+// PDF GUÍA — formato idéntico al PDF original
+function generarPDFGuia() {
+  const np = (T.numParejas && T.parejas && T.parejas.length > 0 ? T.numParejas : 0)
+    || parseInt(document.getElementById('calc-parejas-input')?.value)
+    || parseInt(document.getElementById('num-parejas')?.value)
+    || 0;
+  const recaudado = np > 0 ? (np * 2 * 10) : (parseFloat(document.getElementById('calc-recaudado')?.value) || 0);
+  const horas = T.horas || {};
+  const pcts  = [0.60, 0.25, 0.10, 0.05];
+  const etiq  = ['1º', '2º', '3º', '4º'];
+  const medals= ['🥇', '🥈', '🥉', ''];
+  const parejas = [1,2,3,4].map(i => document.getElementById('pr-pareja-'+i)?.textContent || '— Por determinar');
+
+  const GOLD='#C9A84C', DARK='#1A1916', MUTED='#7a7670', BGROW='#FDF8EE';
+  const thStyle = `background:${DARK};color:white;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:8px 12px;text-align:center;font-family:Helvetica,Arial,sans-serif`;
+  const tdStyle = (bg) => `background:${bg};padding:7px 12px;text-align:center;font-size:11px;color:${DARK};font-family:Helvetica,Arial,sans-serif;border-bottom:0.5px solid #ddd`;
+  const secStyle = `font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-size:15px;color:${GOLD};margin:22px 0 10px;letter-spacing:1px;border-left:4px solid ${GOLD};padding-left:10px`;
+  const bodyStyle = `font-family:Helvetica,Arial,sans-serif;font-size:12px;color:${DARK};line-height:1.8;margin-bottom:8px;text-align:justify`;
+  const itemStyle = `font-family:Helvetica,Arial,sans-serif;font-size:12px;color:${DARK};line-height:1.8;margin-bottom:5px;padding-left:18px`;
+  const notaStyle = `font-family:Helvetica,Arial,sans-serif;font-size:10px;color:${MUTED};font-style:italic;margin-top:6px`;
+  const tableStyle = `width:100%;border-collapse:collapse;margin-bottom:14px`;
+
+  const fmtData = [
+    ['8','2 grupos de 4 · 3 rondas','4 parejas (2 por grupo)'],
+    ['10 / 14 / 18 / 22','Patrón automático · 3 rondas','8 mejores'],
+    ['12','3 grupos de 4 · 3 rondas','8 (2 por grupo + 2 mejores 3ºs)'],
+    ['16','4 grupos de 4 · 3 rondas','8 (2 por grupo)'],
+    ['20','5 grupos de 4 · 3 rondas','8 (1º de cada grupo + 3 mejores 2ºs)'],
+    ['24','6 grupos de 4 · 3 rondas','8 (1º de cada grupo + 2 mejores 2ºs)'],
+  ];
+  const fmtRows = fmtData.map((r,i)=>`<tr>${r.map(d=>`<td style="${tdStyle(i%2===0?'white':BGROW)}">${d}</td>`).join('')}</tr>`).join('');
+
+  const desData = [
+    ['CON GRUPOS',''],
+    ['1º PG','Mayor número de partidas ganadas'],
+    ['2º Dif. CH','Mayor diferencia de chicos (ganados − encajados)'],
+    ['3º Particular','Resultado del enfrentamiento directo entre las parejas empatadas'],
+    ['4º CH','Mayor número de chicos ganados en total'],
+    ['5º Sorteo','Si persiste el empate se realizará sorteo'],
+    ['SIN GRUPOS',''],
+    ['1º PG','Mayor número de partidas ganadas'],
+    ['2º Dif. CH','Mayor diferencia de chicos (ganados − encajados)'],
+    ['3º CH','Mayor número de chicos ganados en total'],
+    ['4º Sorteo','Si persiste el empate se realizará sorteo'],
+  ];
+  const desRows = desData.map((r,i)=>{
+    if(r[1]==='') return `<tr><td colspan="2" style="background:${DARK};color:${GOLD};font-family:monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 12px;font-weight:700">${r[0]}</td></tr>`;
+    return `<tr>${r.map(d=>`<td style="${tdStyle(i%2===0?'white':BGROW)}">${d}</td>`).join('')}</tr>`;
+  }).join('');
+
+  const horData = [
+    ['Ronda 1 grupos', horas.r1||'18:20'],
+    ['Ronda 2 grupos', horas.r2||'19:10'],
+    ['Ronda 3 grupos', horas.r3||'20:00'],
+    ['Cuartos de final', horas.cuartos||'21:00'],
+    ['Semifinales', horas.semis||'21:50'],
+    ['Final', horas.final||'22:40'],
+  ];
+  const horRows = horData.map((r,i)=>`<tr>${r.map(d=>`<td style="${tdStyle(i%2===0?'white':BGROW)}">${d}</td>`).join('')}</tr>`).join('');
+
+  const premioRows = pcts.map((p,i)=>{
+    const imp = recaudado>0?(recaudado*p).toFixed(2)+' €':'—';
+    const bg = i%2===0?'white':BGROW;
+    return `<tr>
+      <td style="${tdStyle(bg)}">${medals[i]} ${etiq[i]}</td>
+      <td style="${tdStyle(bg)};text-align:left">${parejas[i]}</td>
+      <td style="${tdStyle(bg)}">${Math.round(p*100)}%</td>
+      <td style="${tdStyle(bg)};font-weight:700;color:${DARK}">${imp}</td>
+    </tr>`;
+  }).join('');
+
+  const cab = `<div style="text-align:center;margin-bottom:10px">
+    <div style="font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-size:28px;color:${DARK};letter-spacing:2px">🃏 TORNEO DE MUS</div>
+    <div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:${MUTED};letter-spacing:1px;margin-top:3px">GUÍA DEL JUGADOR</div>
+  </div>
+  <hr style="border:none;border-top:2px solid ${GOLD};margin:0 0 20px">`;
+
+  const cab2 = `<div style="border-bottom:2px solid ${GOLD};padding-bottom:6px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-size:20px;color:${DARK};letter-spacing:2px">🃏 TORNEO DE MUS — GUÍA DEL JUGADOR</div>
+    <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;color:${MUTED}">${new Date().toLocaleDateString('es-ES')}</div>
+  </div>`;
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+  <title>Guía Torneo de Mus</title>
+  <style>
+    @page { size: A4 portrait; margin: 18mm 16mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: white; }
+  </style>
+  </head><body>
+
+  ${cab}
+
+  <div style="${secStyle}">1. FORMATO DEL TORNEO</div>
+  <p style="${bodyStyle}">El torneo se divide en una <b>fase de grupos</b> donde se determina quiénes pasan a la siguiente ronda, y una <b>fase eliminatoria</b> (cuartos, semifinales y final).</p>
+  <table style="${tableStyle}">
+    <thead><tr><th style="${thStyle}">Parejas</th><th style="${thStyle}">Formato fase grupos</th><th style="${thStyle}">Se clasifican</th></tr></thead>
+    <tbody>${fmtRows}</tbody>
+  </table>
+
+  <div style="${secStyle}">2. PUNTUACIÓN EN CADA PARTIDA</div>
+  <p style="${bodyStyle}">Cada partida de mus se juega en chicos del 0 al 5. No hay empate — una pareja siempre gana. En cada partida se registra el resultado en chicos de cada pareja. Con esos datos se calculan tres estadísticas:</p>
+  <p style="${itemStyle}">• <b>PG (Partidas Ganadas):</b> número de partidas que ha ganado la pareja.</p>
+  <p style="${itemStyle}">• <b>CH (Chicos):</b> total de chicos obtenidos en todas las partidas.</p>
+  <p style="${itemStyle}">• <b>Dif (Diferencia):</b> chicos ganados menos chicos encajados.</p>
+
+  <div style="${secStyle}">3. CRITERIOS DE DESEMPATE</div>
+  <p style="${bodyStyle}">Cuando dos o más parejas tienen los mismos puntos en la clasificación, el desempate se resuelve en este orden:</p>
+  <table style="${tableStyle}">
+    <thead><tr><th style="${thStyle}">Criterio</th><th style="${thStyle}">Descripción</th></tr></thead>
+    <tbody>${desRows}</tbody>
+  </table>
+
+  <div style="page-break-before:always"></div>
+  ${cab2}
+
+  <div style="${secStyle}">4. HORARIOS ORIENTATIVOS</div>
+  <p style="${bodyStyle}">Los horarios de cada fase son los siguientes. El organizador puede ajustarlos antes de cada torneo:</p>
+  <table style="${tableStyle}">
+    <thead><tr><th style="${thStyle}">Fase</th><th style="${thStyle}">Hora</th></tr></thead>
+    <tbody>${horRows}</tbody>
+  </table>
+  <p style="${notaStyle}">Las partidas pueden empezar si las dos parejas están disponibles para jugar.</p>
+
+  <div style="${secStyle}">5. NORMAS GENERALES</div>
+  <p style="${itemStyle}">• Cada pareja debe estar en su mesa antes del inicio de cada ronda.</p>
+  <p style="${itemStyle}">• La pareja ganadora lleva el acta a la mesa del organizador.</p>
+  <p style="${itemStyle}">• En caso de discrepancia en el resultado, prevalece el acta de resultado entregada.</p>
+  <p style="${itemStyle}">• En caso de retraso de una de las parejas, cada 5 minutos se anotará un chico a la pareja contraria.</p>
+  <p style="${itemStyle}">• Los emparejamientos de cada ronda se publican antes de que comience la misma.</p>
+
+  <div style="${secStyle}">6. CUOTA E INSCRIPCIÓN Y PREMIOS</div>
+  <p style="${bodyStyle}">La cuota de inscripción es de <b>12€ por jugador</b>. De esos 12€, <b>10€ van al fondo de premios</b> y 2€ a la organización. Los premios son por pareja.</p>
+  ${np > 0 ? `<p style="${bodyStyle}">Con <b>${np} parejas</b> inscritas (${np*2} jugadores), el fondo de premios es de <b>${(np*2*10).toFixed(0)} €</b>.</p>` : ''}
+  <table style="${tableStyle}">
+    <thead><tr>
+      <th style="${thStyle}">Posición</th>
+      <th style="${thStyle}">Pareja</th>
+      <th style="${thStyle}">%</th>
+      <th style="${thStyle}">Premio</th>
+    </tr></thead>
+    <tbody>${premioRows}</tbody>
+  </table>
+  <p style="${notaStyle}">Los importes se calculan sobre el fondo de premios total recaudado (${recaudado > 0 ? recaudado.toFixed(0) + ' €' : 'pendiente de calcular'}).</p>
+
+  <hr style="border:none;border-top:1px solid #ddd;margin:20px 0 8px">
+  </body></html>`;
+
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{w.focus();w.print();},600);
+}
+
+function torneoKey2(nombre) {
+  return 'mus_t_' + nombre.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g,'_').toLowerCase().substring(0,40);
+}
+
+// ── Índice derivado SIEMPRE de claves reales en localStorage ──
+function getIndice() {
+  const result = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith('mus_t_')) continue;
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        const est = JSON.parse(raw);
+        const nombre = est?.T?.nombre || est?.setup?.nombre;
+        if (nombre) result.push({ key, nombre, ts: est.ts || 0, numParejas: est.T?.numParejas || est.setup?.n || 0, activo: est.T?.parejas?.length > 0 });
+      } catch(e) {}
+    }
+  } catch(e) {}
+  result.sort((a,b) => b.ts - a.ts);
+  return result;
+}
+
+function setIndice() {} // no-op: índice es derivado, no se guarda por separado
+
+function limpiarIndice() {
+  // Borrar claves mus_t_ sin contenido válido
+  const toDelete = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith('mus_t_')) continue;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) { toDelete.push(key); continue; }
+      const est = JSON.parse(raw);
+      const nombre = est?.T?.nombre || est?.setup?.nombre;
+      if (!nombre) toDelete.push(key);
+    } catch(e) { toDelete.push(key); }
+  }
+  toDelete.forEach(k => localStorage.removeItem(k));
+}
+
+function guardarEstado() {
+  try {
+    const n = parseInt(document.getElementById('num-parejas') ? document.getElementById('num-parejas').value : 16);
+    const nombreEl = document.getElementById('nombre-torneo');
+    const nombre = (nombreEl ? nombreEl.value : '') || T.nombre || '';
+    if (!nombre) return false;
+    const parejas = [];
+    for (let i=1; i<=n; i++) {
+      const el = document.getElementById('pareja-'+i);
+      parejas.push(el ? el.value : '');
+    }
+    const estado = { T: T, setup: { n: n, nombre: nombre, parejas: parejas }, ts: Date.now() };
+    const key = torneoKey2(nombre);
+    // Solo guardar si hay torneo iniciado o nombre confirmado
+    if (T.parejas?.length > 0 || _nombreConfirmado) {
+      localStorage.setItem(key, JSON.stringify(estado));
+      localStorage.setItem(LS_ESTADO, JSON.stringify(estado));
+    }
+    mostrarGuardado();
+    return true;
+  } catch(e) { return false; }
+}
+
+function cargarEstado(nombre) {
+  try {
+    // Si se pasa nombre, buscar ese torneo específico
+    let raw = null;
+    if (nombre) {
+      raw = localStorage.getItem(torneoKey2(nombre));
+    }
+    // Si no, buscar el más reciente del índice
+    if (!raw) {
+      const idx = getIndice();
+      if (idx.length > 0) raw = localStorage.getItem(idx[0].key);
+    }
+    // Fallback a legacy
+    if (!raw) raw = localStorage.getItem(LS_ESTADO);
+    if (!raw) return false;
+    const estado = JSON.parse(raw);
+    if (!estado) return false;
+
+    if (estado.T && estado.T.parejas && estado.T.parejas.length > 0) {
+      T = estado.T;
+      const sel = document.getElementById('num-parejas');
+      if (sel) { sel.value = T.numParejas; generarParejas(); }
+      const nomEl = document.getElementById('nombre-torneo');
+      if (nomEl) nomEl.value = T.nombre || '';
+      setTimeout(() => requestAnimationFrame(() => {
+        T.parejas.forEach((p, i) => {
+          const el = document.getElementById('pareja-' + (i + 1));
+          if (el) el.value = p.nombre || '';
+        });
+      }), 150);
+      return 'torneo';
+    }
+    if (estado.setup && estado.setup.n) {
+      const s = estado.setup;
+      const sel = document.getElementById('num-parejas');
+      if (sel) { sel.value = s.n; generarParejas(); }
+      const nomEl = document.getElementById('nombre-torneo');
+      if (nomEl && s.nombre) nomEl.value = s.nombre;
+      setTimeout(() => requestAnimationFrame(() => {
+        s.parejas && s.parejas.forEach((nombre2, i) => {
+          const el = document.getElementById('pareja-'+(i+1));
+          if (el && nombre2) el.value = nombre2;
+        });
+      }), 150);
+      return 'setup';
+    }
+    return false;
+  } catch(e) { return false; }
+}
+
+function borrarEstado(nombre) {
+  if (!nombre) return;
+  // Borrar TODAS las claves mus_t_ que correspondan a este nombre
+  const toDelete = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith('mus_t_')) continue;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) { toDelete.push(key); continue; }
+      const est = JSON.parse(raw);
+      const n = est?.T?.nombre || est?.setup?.nombre;
+      if (n === nombre) toDelete.push(key);
+    } catch(e) { toDelete.push(key); }
+  }
+  toDelete.forEach(k => localStorage.removeItem(k));
+  // Limpiar LS_ESTADO legacy si corresponde
+  try {
+    const raw = localStorage.getItem(LS_ESTADO);
+    if (raw) {
+      const est = JSON.parse(raw);
+      if (est?.T?.nombre === nombre || est?.setup?.nombre === nombre) {
+        localStorage.removeItem(LS_ESTADO);
+      }
+    }
+  } catch(e) {}
+  // Limpiar índice legacy LS_INDICE si existe
+  try {
+    const idxRaw = localStorage.getItem(LS_INDICE);
+    if (idxRaw) {
+      const idx = JSON.parse(idxRaw).filter(e => e.nombre !== nombre);
+      localStorage.setItem(LS_INDICE, JSON.stringify(idx));
+    }
+  } catch(e) {}
+}
+
+// Limpieza profunda: elimina del índice cualquier entrada sin clave real
+
+
+function guardarTorneoCurso() { guardarEstado(); }
+function guardarTorneoCursoCompleto() { guardarEstado(); }
+function borrarTorneoCurso() { borrarEstado(); }
+function guardarConfigSetup() { guardarEstado(); }
+
+
+// ══ RANKING localStorage ══
+
+
+
+function guardarHorasPreferencia() {
+  const horas = {
+    r1: document.getElementById('hora-r1').value,
+    r2: document.getElementById('hora-r2').value,
+    r3: document.getElementById('hora-r3').value,
+    cuartos: document.getElementById('hora-cuartos').value,
+    semis: document.getElementById('hora-semis').value,
+    final: document.getElementById('hora-final').value
+  };
+  localStorage.setItem(LS_HORAS, JSON.stringify(horas));
+}
+
+function cargarHorasPreferencia() {
+  try {
+    const raw = localStorage.getItem(LS_HORAS);
+    if (!raw) return;
+    const h = JSON.parse(raw);
+    if (h.r1) document.getElementById('hora-r1').value = h.r1;
+    if (h.r2) document.getElementById('hora-r2').value = h.r2;
+    if (h.r3) document.getElementById('hora-r3').value = h.r3;
+    if (h.cuartos) document.getElementById('hora-cuartos').value = h.cuartos;
+    if (h.semis) document.getElementById('hora-semis').value = h.semis;
+    if (h.final) document.getElementById('hora-final').value = h.final;
+  } catch(e) {}
+}
+
+function mostrarGuardado() {
+  const el = document.getElementById('save-indicator');
+  if (!el) return;
+  el.style.opacity = '1';
+  clearTimeout(window._saveIndicatorTimer);
+  window._saveIndicatorTimer = setTimeout(() => { el.style.opacity = '0'; }, 1500);
+  actualizarDatalist();
+}
+
+function actualizarDatalist() {
+  const dl = document.getElementById('torneos-guardados-list');
+  if (dl) {
+    const nombres = listarTorneosGuardados();
+    dl.innerHTML = nombres.map(n=>'<option value="'+n+'">'  ).join('');
+  }
+  renderTorneosPanel();
+}
+
+function renderTorneosPanel() {
+  const panel = document.getElementById('torneos-guardados-panel');
+  const lista = document.getElementById('torneos-lista');
+  if (!panel || !lista) return;
+  limpiarIndice();
+  const idx = getIndice();
+  if (idx.length === 0) { panel.style.display='none'; return; }
+  panel.style.display = 'block';
+  lista.innerHTML = idx.map(e => {
+    const esActivo = T.nombre === e.nombre && T.parejas?.length > 0;
+    const fecha = e.ts ? new Date(e.ts).toLocaleDateString('es-ES') : '';
+    const np = e.numParejas ? e.numParejas + ' parejas' : '';
+    // Determinar estado del torneo
+    let estado = '';
+    try {
+      const raw = localStorage.getItem(torneoKey2(e.nombre));
+      if (raw) {
+        const est = JSON.parse(raw);
+        const t = est?.T;
+        if (t?.elim?.ganador) estado = '🏆 Finalizado';
+        else if (t?.elim?.cuartos?.some(p=>p.saved)||t?.elim?.semis?.some(s=>s.saved)) estado = '⚔ Eliminatorias';
+        else if (t?.clasif?.length>0) estado = '📊 Clasificado';
+        else if (t?.parejas?.length>0) estado = '🎮 En grupos';
+        else if (est?.setup?.nombre) estado = '📝 Configurando';
+      }
+    } catch(e2) {}
+    return `<div class="torneo-item">
+      ${esActivo ? '<div class="torneo-activo-dot" title="Torneo activo"></div>' : '<div style="width:8px;flex-shrink:0"></div>'}
+      <div class="torneo-item-nombre">${e.nombre}</div>
+      <div class="torneo-item-meta">${estado}${estado&&np?' · ':''}${np}${(estado||np)&&fecha?' · ':''}${fecha}</div>
+      <div class="torneo-item-btns">
+        <button onclick="recuperarDesdePanel('${e.nombre.replace(/'/g,"\'")}')">↩ Abrir</button>
+        <button class="del" onclick="borrarDesdePanel('${e.nombre.replace(/'/g,"\'")}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function recuperarDesdePanel(nombre) {
+  document.getElementById('nombre-torneo').value = nombre;
+  recuperarTorneoPorNombre();
+}
+
+function borrarDesdePanel(nombre) {
+  document.getElementById('nombre-torneo').value = nombre;
+  borrarTorneoPorNombre();
+}
+
+function cargarTorneoCurso(nombre) {
+  // Usa cargarEstado — nombre no se usa, ya está en LS_ESTADO
+  return cargarEstado() === 'torneo';
+}
+
+function cargarTorneoPorNombre(nombre) {
+  // Alias de recuperarTorneoPorNombre para compatibilidad
+  document.getElementById('nombre-torneo').value = nombre;
+  recuperarTorneoPorNombre();
+}
+
+
+
+function listarTorneosGuardados() {
+  return getIndice().map(e => e.nombre);
+}
+
+</script>
+</body>
+</html>
